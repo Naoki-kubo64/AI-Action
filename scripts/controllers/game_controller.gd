@@ -20,6 +20,13 @@ func _ready():
 		player.modulate = profile.base_color
 	
 	LLMService.response_received.connect(_on_llm_response)
+	
+	# Generate Level
+	var level_gen = $LevelGenerator
+	var start_pos = level_gen.generate_level($LevelRoot)
+	player.position = start_pos
+	player.target_position = start_pos
+	
 	start_turn()
 
 func start_turn():

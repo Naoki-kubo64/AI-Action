@@ -1,20 +1,26 @@
-[gd_scene load_steps=5 format=3 uid="uid://gamescene456"]
+[gd_scene load_steps=6 format=3 uid="uid://gamescene456"]
 
 [ext_resource type="Script" path="res://scripts/controllers/game_controller.gd" id="1_gc"]
 [ext_resource type="Script" path="res://scripts/controllers/player_controller.gd" id="2_pc"]
-[ext_resource type="Texture2D" uid="uid://bshk8j4m2d3f" path="res://icon.svg" id="3_icon"]
 [ext_resource type="Script" path="res://scripts/ui/retry_dialog.gd" id="4_retry"]
+[ext_resource type="Script" path="res://scripts/utils/level_generator.gd" id="5_lg"]
 
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_gc")
 
+[node name="LevelRoot" type="Node2D" parent="."]
+
+[node name="LevelGenerator" type="Node" parent="."]
+script = ExtResource("5_lg")
+
 [node name="Player" type="CharacterBody2D" parent="."]
-position = Vector2(100, 100)
+z_index = 10
+position = Vector2(96, 96)
 script = ExtResource("2_pc")
 
-[node name="Sprite2D" type="Sprite2D" parent="Player"]
-scale = Vector2(0.5, 0.5)
-texture = ExtResource("3_icon")
+[node name="Camera2D" type="Camera2D" parent="Player"]
+zoom = Vector2(1.5, 1.5)
+position_smoothing_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
