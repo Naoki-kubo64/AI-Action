@@ -1,0 +1,63 @@
+[gd_scene load_steps=5 format=3 uid="uid://mainmenu123"]
+
+[ext_resource type="Script" path="res://scripts/ui/character_select_ui.gd" id="1_script"]
+[ext_resource type="Resource" path="res://resources/characters/type_o.tres" id="2_type_o"]
+[ext_resource type="Resource" path="res://resources/characters/type_g.tres" id="3_type_g"]
+[ext_resource type="Resource" path="res://resources/characters/type_c.tres" id="4_type_c"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_script")
+characters = Array[Resource]([ExtResource("2_type_o"), ExtResource("3_type_g"), ExtResource("4_type_c")])
+
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CenterContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Select AI Character"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="BtnTypeO" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Type O"
+
+[node name="BtnTypeG" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Type G"
+
+[node name="BtnTypeC" type="Button" parent="CenterContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Type C"
+
+[node name="HSeparator" type="HSeparator" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="StartStandard" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Start Standard (Free)"
+
+[node name="StartPro" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Start Pro (Pay $)"
+
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeO" to="." method="_on_char_button_pressed" binds= [0]]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeG" to="." method="_on_char_button_pressed" binds= [1]]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeC" to="." method="_on_char_button_pressed" binds= [2]]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/StartStandard" to="." method="_on_start_standard_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/StartPro" to="." method="_on_start_pro_pressed"]

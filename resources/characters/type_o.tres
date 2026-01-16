@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="AICharacterProfile" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/resources/ai_character_profile.gd" id="1_script"]
+
+[resource]
+script = ExtResource("1_script")
+character_name = "Type O"
+description = "Logical and robust. OpenAI motif."
+base_color = Color(0.0, 0.6, 0.4, 1.0)
+provider_id = "openai"
+system_prompt_base = "You are Type O, a logical AI assistant. Focus on efficiency and standard solutions."
