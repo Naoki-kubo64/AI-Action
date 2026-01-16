@@ -2,45 +2,71 @@ extends CharacterBody2D
 class_name PlayerController
 
 @export var move_speed: float = 300.0
-var target_position: Vector2
+@export var jump_force: float = -600.0
+@export var gravity: float = 1200.0
+
+# AI Commands
+var current_command: String = ""
 
 func _ready():
 	_setup_visuals()
-	target_position = position
 
 func _physics_process(delta):
-	if position.distance_to(target_position) > 2.0:
-		velocity = position.direction_to(target_position) * move_speed
-		move_and_slide()
-		# Simple bobbing animation
-		$Visuals.position.y = sin(Time.get_ticks_msec() * 0.01) * 5.0
-	else:
-		velocity = Vector2.ZERO
-		position = target_position # Snap to grid
-		$Visuals.position.y = lerp($Visuals.position.y, 0.0, delta * 5.0)
+	# Apply Gravity
+	if not is_on_floor():
+		velocity.y += gravity * delta
+	
+	# Handle AI Commands
+	_process_command()
+	
+	move_and_slide()
+	
+	# Simple visual rotation
+	if velocity.x != 0:
+		$Visuals.scale.x = sign(velocity.x)
 
-func move_relative(direction: Vector2):
-	# 格子状移動 64px
-	target_position += direction * 64.0
-	# Rotate visuals to face direction
-	if direction.x != 0:
-		$Visuals.scale.x = sign(direction.x)
+func set_command(cmd: String):
+	current_command = cmd
+
+func _process_command():
+	# Reset horizontal velocity (AI controls it step by step, or continuous)
+	# For this prototype: executed command persists for the frame or until changed
+	
+	# Default friction
+	velocity.x = move_toward(velocity.x, 0, move_speed)
+	
+	if current_command == "RIGHT":
+		velocity.x = move_speed
+	elif current_command == "LEFT":
+		velocity.x = -move_speed
+	elif current_command == "JUMP":
+		if is_on_floor():
+			velocity.y = jump_force
+		# After jump, keep moving forward if needed, or just jump vertical
+		# Ideally AI says "JUMP_RIGHT"
+		
+	elif current_command == "JUMP_RIGHT":
+		if is_on_floor():
+			velocity.y = jump_force
+		velocity.x = move_speed
+		
+	elif current_command == "STOP":
+		velocity.x = 0
 
 func _setup_visuals():
-	# Create a simple robot character using Polygon2D if not already existing
 	if has_node("Visuals"): return
 	
 	var visuals = Node2D.new()
 	visuals.name = "Visuals"
 	add_child(visuals)
 	
-	# Body
+	# Body (Robot style)
 	var body = Polygon2D.new()
 	body.polygon = PackedVector2Array([
 		Vector2(-16, -24), Vector2(16, -24),
 		Vector2(20, 16), Vector2(-20, 16)
 	])
-	body.color = Color.WHITE # Will be tinted by modulate
+	body.color = Color.WHITE
 	visuals.add_child(body)
 	
 	# Eyes

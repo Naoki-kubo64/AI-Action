@@ -5,6 +5,8 @@
 [ext_resource type="Script" path="res://scripts/ui/retry_dialog.gd" id="4_retry"]
 [ext_resource type="Script" path="res://scripts/utils/level_generator.gd" id="5_lg"]
 
+[ext_resource type="Script" path="res://scripts/ui/prompt_input_ui.gd" id="6_prompt"]
+
 [node name="GameScene" type="Node2D"]
 script = ExtResource("1_gc")
 
@@ -24,8 +26,73 @@ position_smoothing_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
+[node name="PromptInputUI" type="Control" parent="CanvasLayer"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("6_prompt")
+
+[node name="Panel" type="Panel" parent="CanvasLayer/PromptInputUI"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -200.0
+offset_top = -150.0
+offset_right = 200.0
+offset_bottom = 150.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/PromptInputUI/Panel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+alignment = 1
+
+[node name="Label" type="Label" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Mission Briefing"
+horizontal_alignment = 1
+
+[node name="Label2" type="Label" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Instruction Prompt for AI:"
+
+[node name="PromptEdit" type="TextEdit" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+text = "Move forward safely. avoid gaps."
+placeholder_text = "e.g. Move right and jump over gaps."
+
+[node name="Label3" type="Label" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "API Key (Optional):"
+
+[node name="ApiKeyEdit" type="LineEdit" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "sk-..."
+secret = true
+
+[node name="StartButton" type="Button" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Start Mission"
+
 [node name="RetryDialog" type="Control" parent="CanvasLayer"]
 visible = false
+
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -71,6 +138,7 @@ text = "Retry Standard (Free)"
 layout_mode = 2
 text = "Retry Pro (Pay $)"
 
+[connection signal="pressed" from="CanvasLayer/PromptInputUI/Panel/VBoxContainer/StartButton" to="CanvasLayer/PromptInputUI" method="_on_start_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryStandard" to="CanvasLayer/RetryDialog" method="_on_retry_standard_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryPro" to="CanvasLayer/RetryDialog" method="_on_retry_pro_pressed"]
 [connection signal="retry_requested" from="CanvasLayer/RetryDialog" to="." method="_on_retry_requested"]

@@ -3,30 +3,35 @@ class_name GameController
 
 @onready var player: PlayerController = $Player
 @onready var retry_dialog = $CanvasLayer/RetryDialog
+@onready var prompt_ui = $CanvasLayer/PromptInputUI
 
 var turn_count: int = 0
-var max_turns: int = 10
-var game_active: bool = true
+var max_turns: int = 30 # Increased for platformer
+var game_active: bool = false
+var user_prompt: String = ""
 
 func _ready():
-	# GameManagerから初期設定読み込み
-	if GameManager.current_character == null:
-		print("[GameController] No character selected, using fallback.")
-		# フォールバック処理 (テスト用)
-	else:
-		var profile = GameManager.current_character
-		print("[GameController] Initialized with ", profile.character_name)
-		# プレイヤーの色変更など
-		player.modulate = profile.base_color
+	# Initial setup
+	if GameManager.current_character:
+		print("[GameController] Initialized with ", GameManager.current_character.character_name)
+		player.modulate = GameManager.current_character.base_color
 	
+	# Wait for Prompt UI
+	prompt_ui.visible = true
+	prompt_ui.game_start_requested.connect(_on_game_start_requested)
 	LLMService.response_received.connect(_on_llm_response)
+
+func _on_game_start_requested(prompt: String, api_key: String):
+	user_prompt = prompt
+	# Set API Key if provided (mock for now, or actual service update)
+	print("Game Starting with Prompt: ", prompt)
 	
 	# Generate Level
 	var level_gen = $LevelGenerator
 	var start_pos = level_gen.generate_level($LevelRoot)
 	player.position = start_pos
-	player.target_position = start_pos
 	
+	game_active = true
 	start_turn()
 
 func start_turn():
@@ -42,41 +47,48 @@ func start_turn():
 func request_ai_action():
 	if GameManager.current_character == null: return
 	
-	# 現在の状況をテキスト化 (簡易)
-	var context_text = "Turn: " + str(turn_count) + ". You are at " + str(player.position)
+	# Platformer Context
+	# Raycast or logic to detect surroundings
+	var context = _get_platformer_context()
+	var full_input = "User Instruction: " + user_prompt + "\nContext: " + context
+	
 	LLMService.request_action(
 		GameManager.current_character, 
 		GameManager.is_pro_mode, 
-		context_text
+		full_input
 	)
 
+func _get_platformer_context() -> String:
+	# Simple mock context generator
+	# In real game, use RayCast2D to detect walls/gaps properly
+	var pos_x = int(player.position.x / 64)
+	return "Player at X=" + str(pos_x) + ". Ground: " + str(player.is_on_floor())
+
 func _on_llm_response(response: String):
-	print("[GameController] AI decided: ", response)
+	print("[GameController] AI Raw Response: ", response)
 	
-	# 本来はレスポンスを解析して行動決定するが、プロトタイプではランダムまたは固定移動
-	# モッドレスポンス文字列に "Right" などが含まれているかを判定するロジックを想定
-	
-	# デモ用に右または下に移動させる
-	var move_dir = Vector2.RIGHT
-	if "Creative" in response: # Type G uses creative path (Down)
-		move_dir = Vector2.DOWN
-	elif "Safety" in response: # Type C moves carefully (Right)
-		move_dir = Vector2.RIGHT
-	else:
-		move_dir = Vector2.RIGHT
+	# Parse response (Simple keyword matching for prototype)
+	# Expected: [JUMP], [RIGHT], [STOP]
+	var cmd = "STOP"
+	if "JUMP" in response or "jump" in response.to_lower():
+		if "RIGHT" in response or "forward" in response.to_lower():
+			cmd = "JUMP_RIGHT"
+		else:
+			cmd = "JUMP"
+	elif "RIGHT" in response or "forward" in response.to_lower():
+		cmd = "RIGHT"
+	elif "LEFT" in response:
+		cmd = "LEFT"
 		
-	player.move_relative(move_dir)
+	print("[GameController] Executing: ", cmd)
+	player.set_command(cmd)
 	
-	# 次のターンへ
-	await get_tree().create_timer(1.5).timeout
+	# Platformer is real-time, but here we update AI decision periodically
+	await get_tree().create_timer(1.0).timeout
 	start_turn()
 
 func game_over(reason: String):
 	game_active = false
+	player.set_command("STOP")
 	print("Game Over: ", reason)
 	retry_dialog.show_fail_dialog()
-
-func _on_retry_requested(use_pro: bool):
-	print("Retrying... ProMode: ", use_pro)
-	GameManager.is_pro_mode = use_pro
-	get_tree().reload_current_scene()
