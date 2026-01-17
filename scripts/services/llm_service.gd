@@ -30,6 +30,12 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 	# 1. Initialize History if empty (add System Prompt)
 	if chat_history.is_empty():
 		var system_prompt = profile.get_combined_system_prompt(is_pro)
+		
+		# INJECT MEMORY
+		var memory_json = MemoryManager.get_memory_string()
+		system_prompt += "\n\n[LONG-TERM MEMORY DATA]:\n" + memory_json + "\n"
+		system_prompt += "Act based on this past memory. If 'relationship_level' is high, be more friendly. If 'learned_skills' has entries, try to use them.\n"
+		
 		var prompt_instruction = "IMPORTANT: You are controlling a game character. \n"
 		prompt_instruction += "Output a JSON Array of action objects. \n"
 		prompt_instruction += "Format: [{\"action\": \"COMMAND\", \"duration\": 0.5, \"strength\": 1.0}]\n"
@@ -109,7 +115,53 @@ func _on_gemini_request_completed(result, response_code, headers, body, http_req
 		# Print body for debugging 404s or 400s
 		print("[LLMService] Error Body: ", body.get_string_from_utf8())
 	
+	response_received.emit(text)
 	http_request.queue_free()
+
+func request_summarization():
+	print("[LLMService] Requesting Session Summary...")
+	
+	# Create a new, separate HTTP request to avoid conflict with game loop
+	var summarization_request = HTTPRequest.new()
+	add_child(summarization_request)
+	summarization_request.request_completed.connect(_on_summary_completed.bind(summarization_request))
+	
+	var api_key = GameManager.api_key
+	var url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=" + api_key
+	
+	# Construct Summary Prompt
+	var current_memory = MemoryManager.get_memory_string()
+	var session_log = JSON.stringify(chat_history)
+	var prompt = "Here is the current Long-Term Memory: " + current_memory + "\n"
+	prompt += "Here is the Session Chat Log: " + session_log + "\n"
+	prompt += "TASK: Analyze the session. Update the memory JSON based on the user's feedback, new skills learned, and relationship changes.\n"
+	prompt += "Output ONLY the updated JSON object. Keep the same structure: {player_personality, learned_skills, relationship_level, last_feedback}."
+	
+	var body = JSON.stringify({
+		"contents": [{
+			"parts": [{"text": prompt}]
+		}]
+	})
+	
+	summarization_request.request(url, ["Content-Type: application/json"], HTTPClient.METHOD_POST, body)
+
+func _on_summary_completed(result, response_code, headers, body, request_node):
+	if response_code == 200:
+		var json = JSON.parse_string(body.get_string_from_utf8())
+		if json and json.has("candidates"):
+			var content = json["candidates"][0]["content"]["parts"][0]["text"]
+			# Clean markdown
+			content = content.replace("```json", "").replace("```", "").strip_edges()
+			var new_memory = JSON.parse_string(content)
+			if new_memory:
+				MemoryManager.save_memory(new_memory)
+				print("[LLMService] Memory Updated: ", new_memory)
+			else:
+				print("[LLMService] Failed to parse summary JSON: ", content)
+	else:
+		print("[LLMService] Summary Request Failed: ", response_code)
+	
+	request_node.queue_free()
 
 func _mock_request(profile, is_pro, input):
 	print("[LLMService] Mocking response...")

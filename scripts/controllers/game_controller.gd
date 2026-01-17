@@ -294,3 +294,5 @@ func _finish_action():
 func game_over(reason: String):
 	player.execute_action(command_db["STOP"])
 	retry_dialog.show_fail_dialog(reason)
+	# Trigger Memory Update
+	LLMService.request_summarization()

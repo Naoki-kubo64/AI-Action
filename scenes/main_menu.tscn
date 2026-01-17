@@ -56,8 +56,25 @@ text = "Start Standard (Free)"
 layout_mode = 2
 text = "Start Pro (Pay $)"
 
+[node name="HSeparator2" type="HSeparator" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="ResetMemory" type="Button" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+text = "Red Pill (Reset Memory)"
+modulate = Color(1, 0.4, 0.4, 1)
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+title = "WARNING"
+initial_position = 2
+size = Vector2i(400, 100)
+ok_button_text = "DELETE MEMORY"
+dialog_text = "Are you sure? I will forget everything we learned together..."
+
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeO" to="." method="_on_char_button_pressed" binds= [0]]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeG" to="." method="_on_char_button_pressed" binds= [1]]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeC" to="." method="_on_char_button_pressed" binds= [2]]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/StartStandard" to="." method="_on_start_standard_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/StartPro" to="." method="_on_start_pro_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/ResetMemory" to="." method="_on_reset_memory_pressed"]
+[connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_reset_confirmed"]

@@ -36,7 +36,11 @@ func _on_start_standard_pressed():
 	GameManager.start_game(characters[selected_index], false)
 
 func _on_start_pro_pressed():
-	if characters.is_empty(): return
-	# ここで課金処理を入れる想定
-	print("Processing Payment for Pro Mode...")
+	if selected_index == -1: return
 	GameManager.start_game(characters[selected_index], true)
+
+func _on_reset_memory_pressed():
+	$ConfirmationDialog.popup_centered()
+
+func _on_reset_confirmed():
+	MemoryManager.reset_memory()
