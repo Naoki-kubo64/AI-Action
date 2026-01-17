@@ -175,9 +175,16 @@ func _reset_game():
 			else:
 				start_pos = Vector2(100, 100) # Default
 		else:
-			_log("[Game] CRITICAL: Load failed (null). Using Generator.")
-			var level_gen = $LevelGenerator
-			start_pos = level_gen.generate_level($LevelRoot)
+			_log("[Game] CRITICAL: Load failed (null). Checking Fallback...")
+			
+			if "1-1" in level_path:
+				_log("[Game] Constructing MANUAL Level 1-1 (Fallback).")
+				_construct_manual_level_1_1($LevelRoot)
+				start_pos = Vector2(96, 400)
+			else:
+				_log("[Game] Using Random Generator.")
+				var level_gen = $LevelGenerator
+				start_pos = level_gen.generate_level($LevelRoot)
 	
 	player.position = start_pos
 	player.velocity = Vector2.ZERO
@@ -368,5 +375,61 @@ func _log(msg: String):
 	print(msg)
 	if has_node("CanvasLayer/DebugLog"):
 		var log_node = $CanvasLayer/DebugLog
-		log_node.text += msg + "\n"
-		log_node.scroll_vertical = INF # Auto scroll logic if needed, but TextEdit handles it mostly
+
+func _construct_manual_level_1_1(parent: Node2D):
+	var block_scene = load("res://scenes/block.tscn")
+	if not block_scene:
+		_log("[Game] ERROR: Block scene not found for manual construction.")
+		return
+
+	var floor_node = Node2D.new()
+	floor_node.name = "Floor"
+	parent.add_child(floor_node)
+	
+	# Helper to place block
+	var place = func(x_idx, y_idx):
+		var b = block_scene.instantiate()
+		b.position = Vector2(x_idx * 64, y_idx * 64)
+		floor_node.add_child(b)
+	
+	# Flat Area (0 to 5)
+	for i in range(6): place.call(i, 8) # y=8 -> 512
+	
+	# Stairs 1 (i=6)
+	place.call(6, 8)
+	
+	# Stairs 2 (i=7)
+	place.call(7, 8)
+	place.call(7, 7) # y=7 -> 448
+	
+	# Stairs 3 (i=8)
+	place.call(8, 8)
+	place.call(8, 7)
+	place.call(8, 6) # y=6 -> 384
+	
+	# Stairs 4 (i=9) - Top
+	place.call(9, 8)
+	place.call(9, 7)
+	place.call(9, 6)
+	place.call(9, 5) # y=5 -> 320
+	
+	# Goal Area
+	var goal = Area2D.new()
+	goal.name = "GoalArea"
+	goal.add_to_group("goal")
+	goal.position = Vector2(9 * 64, 4 * 64) # On top of stack 4
+	
+	var col = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(64, 64)
+	col.shape = shape
+	goal.add_child(col)
+	
+	var viz = ColorRect.new()
+	viz.size = Vector2(64, 64)
+	viz.position = Vector2(-32, -32)
+	viz.color = Color(1, 0.84, 0, 0.5)
+	goal.add_child(viz)
+	
+	parent.add_child(goal)
+	_log("[Game] Manual Level 1-1 Constructed.")

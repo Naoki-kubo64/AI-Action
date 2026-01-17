@@ -129,7 +129,7 @@ func _create_obstacle(vis_layer, phys_layer, x, y):
 	
 	# Hazard Area
 	var area = Area2D.new()
-	area.position = pos + Vector2(grid_size/2.0, grid_size/2.0)
+	area.position = pos + Vector2(grid_size / 2.0, grid_size / 2.0)
 	area.add_to_group("hazard")
 	
 	var shape = RectangleShape2D.new()
@@ -149,7 +149,8 @@ func _create_goal(vis_layer, phys_layer, x, y):
 	
 	# Goal Area
 	var area = Area2D.new()
-	area.position = Vector2(x + grid_size/2.0, y)
+	area.name = "GoalArea"
+	area.position = Vector2(x + grid_size / 2.0, y)
 	area.add_to_group("goal")
 	
 	var shape = RectangleShape2D.new()
@@ -169,7 +170,7 @@ func _create_moving_platform(vis_layer, phys_layer, start_x, start_y, length):
 	shape.size = Vector2(plat_len * grid_size, grid_size)
 	var col = CollisionShape2D.new()
 	col.shape = shape
-	col.position = Vector2((plat_len * grid_size)/2.0, grid_size/2.0)
+	col.position = Vector2((plat_len * grid_size) / 2.0, grid_size / 2.0)
 	anim_body.add_child(col)
 	
 	var visual = ColorRect.new()
@@ -207,7 +208,7 @@ func _create_crumbling_platform(vis_layer, phys_layer, start_x, start_y, length)
 	shape.size = Vector2(length * grid_size, grid_size)
 	var col = CollisionShape2D.new()
 	col.shape = shape
-	col.position = Vector2((length * grid_size)/2.0, grid_size/2.0)
+	col.position = Vector2((length * grid_size) / 2.0, grid_size / 2.0)
 	static_body.add_child(col)
 	
 	var visual = ColorRect.new()
@@ -221,7 +222,7 @@ func _create_crumbling_platform(vis_layer, phys_layer, start_x, start_y, length)
 	area_shape.size = Vector2(length * grid_size, 10) # Thin strip on top
 	var area_col = CollisionShape2D.new()
 	area_col.shape = area_shape
-	area_col.position = Vector2((length * grid_size)/2.0, -5)
+	area_col.position = Vector2((length * grid_size) / 2.0, -5)
 	area.add_child(area_col)
 	static_body.add_child(area)
 	
