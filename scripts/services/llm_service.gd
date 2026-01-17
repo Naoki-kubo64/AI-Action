@@ -32,10 +32,14 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 	
 	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output a list of commands separated by commas. Use nuances based on user intent.\n"
 	full_prompt += "COMMAND LIST:\n"
-	full_prompt += "- Move: CREEP_RIGHT/LEFT (Slow), STEP_RIGHT/LEFT, WALK_RIGHT/LEFT, RUN_RIGHT/LEFT, SPRINT_RIGHT/LEFT (Fast)\n"
-	full_prompt += "- Jump: HOP (Low), JUMP, HIGH_JUMP, SUPER_JUMP (High)\n"
-	full_prompt += "- Directional Jump: HOP_RIGHT/LEFT, JUMP_RIGHT/LEFT, LONG_JUMP_RIGHT/LEFT (Far), DASH_JUMP_RIGHT/LEFT (Very Far)\n"
-	full_prompt += "- Misc: WAIT, DANCE, PANIC\n"
+	full_prompt += "- Move: CREEP_RIGHT/LEFT, STEP_RIGHT/LEFT, WALK_RIGHT/LEFT, RUN_RIGHT/LEFT, SPRINT_RIGHT/LEFT, BACK_STEP\n"
+	full_prompt += "- Jump: HOP, JUMP, HIGH_JUMP, SUPER_JUMP\n"
+	full_prompt += "- Directional Jump: HOP_RIGHT/LEFT, JUMP_RIGHT/LEFT, LONG_JUMP_RIGHT/LEFT, DASH_JUMP_RIGHT/LEFT\n"
+	full_prompt += "- Technical: SLIDE_RIGHT/LEFT (Low), WALL_KICK_RIGHT/LEFT, AIR_BRAKE (Stop mid-air)\n"
+	full_prompt += "- Timing: WAIT_SHORT (0.5s), WAIT_LONG (2s), LOOK_AROUND\n"
+	full_prompt += "- Failures (Use for low level): STUMBLE, OVERSHOOT_RIGHT/LEFT\n"
+	full_prompt += "- Interact: INTERACT, PUSH\n"
+	full_prompt += "- Emote: DANCE, PANIC\n"
 	full_prompt += "Example: 'RUN_RIGHT, LONG_JUMP_RIGHT, WALK_RIGHT'\n"
 	full_prompt += "Output ONLY the command list."
 	

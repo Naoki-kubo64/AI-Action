@@ -54,9 +54,30 @@ var command_db = {
 	"HIGH_JUMP_LEFT":  {"speed": -0.5, "jump": 1.4, "duration": 1.2},
 	"DASH_JUMP_LEFT":  {"speed": -2.0, "jump": 1.2, "duration": 1.5},
 	
-	# Special
+	# Timing / Idle
+	"WAIT_SHORT":  {"speed": 0.0, "jump": 0.0, "duration": 0.5},
+	"WAIT_LONG":   {"speed": 0.0, "jump": 0.0, "duration": 2.0},
+	"LOOK_AROUND": {"speed": 0.0, "jump": 0.0, "duration": 1.5, "special": "LOOK_AROUND"},
+	
+	# Technical (Physics)
+	"SLIDE_RIGHT":      {"speed": 1.8, "jump": 0.0, "duration": 0.8, "special": "SLIDE"},
+	"SLIDE_LEFT":       {"speed": -1.8, "jump": 0.0, "duration": 0.8, "special": "SLIDE"},
+	"WALL_KICK_RIGHT":  {"speed": 1.2, "jump": 1.2, "duration": 0.6, "special": "WALL_KICK"},
+	"WALL_KICK_LEFT":   {"speed": -1.2, "jump": 1.2, "duration": 0.6, "special": "WALL_KICK"},
+	"AIR_BRAKE":        {"speed": 0.0, "jump": 0.0, "duration": 0.5, "special": "AIR_BRAKE"},
+	
+	# Failure / Noise
+	"STUMBLE":          {"speed": 0.2, "jump": 0.0, "duration": 1.5, "special": "STUMBLE"},
+	"OVERSHOOT_RIGHT":  {"speed": 1.5, "jump": 0.0, "duration": 2.5}, # Runs too long
+	"OVERSHOOT_LEFT":   {"speed": -1.5, "jump": 0.0, "duration": 2.5},
+	
+	# Interaction (Mock)
+	"INTERACT":         {"speed": 0.0, "jump": 0.0, "duration": 1.0, "special": "INTERACT"},
+	"PUSH":             {"speed": 0.2, "jump": 0.0, "duration": 2.0, "special": "PUSH"},
+	
+	# Special Emotes
 	"DANCE": {"speed": 0.0, "jump": 0.0, "duration": 1.5, "special": "DANCE"},
-	"PANIC": {"speed": 0.0, "jump": 0.0, "duration": 1.0, "special": "PANIC"},
+	"PANIC": {"speed": 0.0, "jump": 0.0, "duration": 1.5, "special": "PANIC"},
 }
 
 func _ready():

@@ -8,7 +8,13 @@ class_name PlayerController
 # Actions parameters
 var target_velocity_x: float = 0.0
 var current_jump_force_mod: float = 1.0
+
+# State Flags
 var is_dancing: bool = false
+var is_stumbling: bool = false
+var is_sliding: bool = false
+var special_timer: float = 0.0
+var active_special: String = ""
 
 func _ready():
 	_setup_visuals()
@@ -18,46 +24,98 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 	
-	# Movement Logic
-	if is_dancing:
-		velocity.x = move_toward(velocity.x, 0, move_speed) # Stop while dancing
-		_process_dance(delta)
+	# Special Logic modifiers
+	var speed_multiplier = 1.0
+	
+	if active_special == "SLIDE":
+		# Low friction, maintain velocity
+		speed_multiplier = 0.0 # Don't apply motor force, just slide
+		velocity.x = move_toward(velocity.x, 0, 50 * delta) # Low friction
+	elif active_special == "STUMBLE":
+		speed_multiplier = 0.0
+		velocity.x = move_toward(velocity.x, 0, 500 * delta)
+	elif active_special == "AIR_BRAKE":
+		# Rapidly reduce velocity
+		velocity.x = move_toward(velocity.x, 0, 2000 * delta)
+		velocity.y = move_toward(velocity.y, 0, 1000 * delta)
 	else:
+		# Normal Movement
 		velocity.x = move_toward(velocity.x, target_velocity_x, move_speed * 5 * delta)
+
+	# Apply Special Transforms
+	_process_special_visuals(delta)
 	
 	move_and_slide()
 	
-	# Visuals
-	if velocity.x != 0:
+	# Visuals Facing
+	if velocity.x != 0 and active_special != "LOOK_AROUND":
 		$Visuals.scale.x = sign(velocity.x)
 
 func execute_action(action_data: Dictionary):
-	# Reset states
-	is_dancing = false
-	$Visuals.rotation = 0
-	target_velocity_x = 0.0
+	_reset_special_states()
 	
 	var cmd = action_data.get("cmd", "STOP")
 	var speed_mod = action_data.get("speed", 0.0)
 	var jump_mod = action_data.get("jump", 0.0)
 	var special = action_data.get("special", "")
 	
-	# horizontal
-	target_velocity_x = move_speed * speed_mod
+	active_special = special
 	
-	# vertical
-	if jump_mod > 0.0 and is_on_floor():
-		velocity.y = jump_force * jump_mod
-	
-	# Special
-	if special == "DANCE":
+	# Set Velocity Target
+	if special == "SLIDE":
+		# Impulse
+		velocity.x = move_speed * speed_mod
+		target_velocity_x = 0 # Let it slide
+		$CollisionShape2D.scale.y = 0.5 # Shrink hitbox
+		$Visuals.rotation_degrees = -90 if speed_mod > 0 else 90
+		$Visuals.position.y = 10
+	elif special == "WALL_KICK":
+		if is_on_wall():
+			# Wall Kick Logic
+			var wall_normal = get_wall_normal()
+			velocity.x = wall_normal.x * move_speed * speed_mod
+			velocity.y = jump_force * jump_mod
+		else:
+			# Failed wall kick = small hop
+			velocity.y = jump_force * 0.5
+	elif special == "STUMBLE":
+		velocity.x = move_speed * 0.5 # Initial stumble step
+		is_stumbling = true
+		$Visuals.rotation_degrees = 45
+	elif special == "LOOK_AROUND":
+		special_timer = 0.0
+	elif special == "DANCE":
 		is_dancing = true
 	elif special == "PANIC":
-		# Handle panic in process or just erratic movement
 		_start_panic()
+	else:
+		# Standard Move
+		target_velocity_x = move_speed * speed_mod
+		if jump_mod > 0.0 and is_on_floor():
+			velocity.y = jump_force * jump_mod
 
-func _process_dance(delta):
-	$Visuals.rotation += 10.0 * delta
+func _reset_special_states():
+	is_dancing = false
+	is_stumbling = false
+	is_sliding = false
+	active_special = ""
+	
+	if has_node("Visuals"):
+		$Visuals.rotation = 0
+		$Visuals.position = Vector2.ZERO
+		$Visuals.scale = Vector2(1, 1)
+	if has_node("CollisionShape2D"):
+		$CollisionShape2D.scale = Vector2(1, 1)
+
+func _process_special_visuals(delta):
+	special_timer += delta
+	
+	if active_special == "DANCE":
+		$Visuals.rotation += 15.0 * delta
+	elif active_special == "LOOK_AROUND":
+		# Flip left/right every 0.3s
+		var phase = int(special_timer / 0.3) % 2
+		$Visuals.scale.x = 1 if phase == 0 else -1
 
 func _start_panic():
 	var tween = create_tween()
@@ -65,7 +123,6 @@ func _start_panic():
 		tween.tween_property($Visuals, "position:x", 5, 0.05)
 		tween.tween_property($Visuals, "position:x", -5, 0.05)
 	tween.tween_property($Visuals, "position:x", 0, 0.05)
-
 
 func _setup_visuals():
 	if has_node("Visuals"): return
