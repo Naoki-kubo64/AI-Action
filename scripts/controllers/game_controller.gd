@@ -319,29 +319,6 @@ func _on_llm_response(response: String):
 	_finish_action()
 
 func _finish_action():
-	print("[GameController] Action Finished. Waiting for stop...")
-	player.execute_action(command_db["STOP"])
-	
-	# Wait for player to stabilize
-	# We wait until on floor AND velocity is low
-	var wait_time = 0.0
-	while wait_time < 3.0: # Max wait 3s to prevent softlock
-		if player.is_on_floor() and player.velocity.length() < 10.0:
-			break
-		await get_tree().physics_frame
-		wait_time += get_physics_process_delta_time()
-		
-		# Allow early exit if player falls off map (game over handles it)
-		if player.position.y > 1500: break
-	
-	_enter_input_mode()
-
-enum State {PREVIEW, INPUT, ACTION, GAMEOVER}
-var current_state = State.PREVIEW
-
-# ... (omitted)
-
-func _finish_action():
 	if current_state == State.GAMEOVER: return
 	
 	print("[GameController] Action Finished. Waiting for stop...")
