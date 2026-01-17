@@ -13,86 +13,107 @@ var turn_count: int = 0
 var max_turns: int = 30
 var user_prompt: String = ""
 
+# --- COMMAND DICTIONARY ---
+# Defines properties for every possible AI command
+var command_db = {
+	# Ground Movement
+	"STOP": {"speed": 0.0, "jump": 0.0, "duration": 0.5},
+	"WAIT": {"speed": 0.0, "jump": 0.0, "duration": 1.0},
+	"SHORT_WAIT": {"speed": 0.0, "jump": 0.0, "duration": 0.5},
+	
+	"CREEP_RIGHT": {"speed": 0.3, "jump": 0.0, "duration": 0.4},
+	"STEP_RIGHT":  {"speed": 0.5, "jump": 0.0, "duration": 0.5},
+	"WALK_RIGHT":  {"speed": 1.0, "jump": 0.0, "duration": 0.8},
+	"RUN_RIGHT":   {"speed": 1.5, "jump": 0.0, "duration": 1.2},
+	"SPRINT_RIGHT":{"speed": 2.0, "jump": 0.0, "duration": 1.5},
+	"BACK_STEP":   {"speed": -0.5, "jump": 0.0, "duration": 0.3}, # Usually moves left if facing right, simplifies to negative speed
+	
+	"CREEP_LEFT":  {"speed": -0.3, "jump": 0.0, "duration": 0.4},
+	"STEP_LEFT":   {"speed": -0.5, "jump": 0.0, "duration": 0.5},
+	"WALK_LEFT":   {"speed": -1.0, "jump": 0.0, "duration": 0.8},
+	"RUN_LEFT":    {"speed": -1.5, "jump": 0.0, "duration": 1.2},
+	"SPRINT_LEFT": {"speed": -2.0, "jump": 0.0, "duration": 1.5},
+	
+	# Vertical Jumps
+	"HOP":         {"speed": 0.0, "jump": 0.5, "duration": 0.6},
+	"JUMP":        {"speed": 0.0, "jump": 1.0, "duration": 0.8},
+	"HIGH_JUMP":   {"speed": 0.0, "jump": 1.3, "duration": 1.0},
+	"SUPER_JUMP":  {"speed": 0.0, "jump": 1.6, "duration": 1.2},
+	
+	# Directional Jumps (Right)
+	"HOP_RIGHT":        {"speed": 0.5, "jump": 0.5, "duration": 0.5},
+	"JUMP_RIGHT":       {"speed": 1.0, "jump": 1.0, "duration": 1.0},
+	"LONG_JUMP_RIGHT":  {"speed": 1.5, "jump": 1.0, "duration": 1.2},
+	"HIGH_JUMP_RIGHT":  {"speed": 0.5, "jump": 1.4, "duration": 1.2},
+	"DASH_JUMP_RIGHT":  {"speed": 2.0, "jump": 1.2, "duration": 1.5},
+	
+	# Directional Jumps (Left)
+	"HOP_LEFT":        {"speed": -0.5, "jump": 0.5, "duration": 0.5},
+	"JUMP_LEFT":       {"speed": -1.0, "jump": 1.0, "duration": 1.0},
+	"LONG_JUMP_LEFT":  {"speed": -1.5, "jump": 1.0, "duration": 1.2},
+	"HIGH_JUMP_LEFT":  {"speed": -0.5, "jump": 1.4, "duration": 1.2},
+	"DASH_JUMP_LEFT":  {"speed": -2.0, "jump": 1.2, "duration": 1.5},
+	
+	# Special
+	"DANCE": {"speed": 0.0, "jump": 0.0, "duration": 1.5, "special": "DANCE"},
+	"PANIC": {"speed": 0.0, "jump": 0.0, "duration": 1.0, "special": "PANIC"},
+}
+
 func _ready():
-	# Initial setup
 	if GameManager.current_character:
 		print("[GameController] Initialized with ", GameManager.current_character.character_name)
 		player.modulate = GameManager.current_character.base_color
 	
-	# Connect signals
 	prompt_ui.game_start_requested.connect(_on_prompt_submitted)
 	LLMService.response_received.connect(_on_llm_response)
 	
-	# Generate Level
 	var level_gen = $LevelGenerator
 	var start_pos = level_gen.generate_level($LevelRoot)
 	player.position = start_pos
 	
-	# Start Sequence
 	_enter_preview_mode()
-	
-	# Setup Minimap
 	_setup_minimap()
 
 func _setup_minimap():
 	var minimap_viewport = $CanvasLayer/MinimapContainer/SubViewportContainer/SubViewport
 	if minimap_viewport:
 		minimap_viewport.world_2d = get_viewport().world_2d
-		# Find Minimap Camera
 		var mini_cam = minimap_viewport.get_node("Camera2D")
 		if mini_cam:
-			# Sync position logic could be added in _process
 			var remote = RemoteTransform2D.new()
 			remote.remote_path = mini_cam.get_path()
 			player.add_child(remote)
 
 func _enter_preview_mode():
 	current_state = State.PREVIEW
-	print("[GameController] State: PREVIEW")
 	prompt_ui.visible = false
-	
-	# Zoom out to show level
 	var tween = create_tween()
 	tween.tween_property(camera, "zoom", Vector2(0.5, 0.5), 1.0)
-	
-	# Wait for 2 seconds then go to input
 	await get_tree().create_timer(2.0).timeout
 	_enter_input_mode()
 
 func _enter_input_mode():
 	current_state = State.INPUT
-	print("[GameController] State: INPUT")
-	
-	# Zoom in to player
 	var tween = create_tween()
 	tween.tween_property(camera, "zoom", Vector2(1.5, 1.5), 0.5)
-	
 	prompt_ui.visible = true
-	# Optional: prompt_ui.grab_focus() if implemented
 
 func _on_prompt_submitted(prompt: String, key: String):
 	if current_state != State.INPUT: return
-	
 	user_prompt = prompt
 	GameManager.api_key = key
-	
 	_enter_action_mode()
 
 func _enter_action_mode():
 	current_state = State.ACTION
-	print("[GameController] State: ACTION")
 	prompt_ui.visible = false
-	
-	# Request AI Action ONE TIME
 	_request_ai_action()
 
 func _request_ai_action():
 	if GameManager.current_character == null: 
-		print("[GameController] No character, skipping.")
 		_finish_action()
 		return
 	
-	# Platformer Context
 	var context = _get_platformer_context()
 	var full_input = "User Instruction: " + user_prompt + "\nContext: " + context
 	
@@ -105,58 +126,46 @@ func _request_ai_action():
 
 func _get_platformer_context() -> String:
 	var pos_x = int(player.position.x / 64)
-	return "Player at X-Grid=" + str(pos_x) + ". Is On Floor: " + str(player.is_on_floor())
+	return "Player Grid X: " + str(pos_x) + ". Is On Floor: " + str(player.is_on_floor())
 
 func _on_llm_response(response: String):
 	if current_state != State.ACTION: return
-	
 	print("[GameController] AI Raw Response: ", response)
 	
-	# Clean response
+	# Parse Sequence
 	response = response.replace("\n", "").replace(".", "").strip_edges()
-	
-	# Split by commas for sequence
 	var commands = response.split(",")
 	
 	for raw_cmd in commands:
-		var cmd = _parse_command(raw_cmd)
-		print("[GameController] Executing Step: ", cmd)
+		var cmd_str = raw_cmd.strip_edges().to_upper()
 		
-		# Reset jump trigger for new command step
-		player.set_command(cmd)
-		player.jump_triggered = false 
+		# Allow simple fuzzy matching if needed, but strict is better for now
+		# If key not found, try to find substring
+		var action_data = command_db.get("STOP") # Default
 		
-		# Duration per step: 0.5s (Matches 128px/s * 0.5s = 64px = 1 block)
-		# If user said "Walk, Jump", we walk for 0.5s, then jump.
-		await get_tree().create_timer(0.5).timeout
+		if command_db.has(cmd_str):
+			action_data = command_db[cmd_str]
+		else:
+			# Fallback: check if includes "RIGHT"
+			if "RIGHT" in cmd_str: action_data = command_db["WALK_RIGHT"]
+			elif "LEFT" in cmd_str: action_data = command_db["WALK_LEFT"]
+			elif "JUMP" in cmd_str: action_data = command_db["JUMP"]
+		
+		action_data["cmd"] = cmd_str # Pass name for debugging
+		print("[GameController] Executing: ", cmd_str)
+		
+		player.execute_action(action_data)
+		
+		var duration = action_data.get("duration", 1.0)
+		await get_tree().create_timer(duration).timeout
 	
 	_finish_action()
 
-func _parse_command(raw_cmd: String) -> String:
-	var lower_res = raw_cmd.to_lower()
-	var cmd = "STOP"
-	if "jump_right" in lower_res or ("jump" in lower_res and "right" in lower_res):
-		cmd = "JUMP_RIGHT"
-	elif "jump_left" in lower_res:
-		cmd = "JUMP_LEFT"
-	elif "jump" in lower_res:
-		cmd = "JUMP"
-	elif "left" in lower_res:
-		cmd = "LEFT"
-	elif "right" in lower_res:
-		cmd = "RIGHT"
-	return cmd
-
 func _finish_action():
-	print("[GameController] Action Finished. Stopping.")
-	player.set_command("STOP")
-	
-	# Check Win/Loss conditions here if needed
-	
-	# Return to Input
+	print("[GameController] Action Finished.")
+	player.execute_action(command_db["STOP"])
 	_enter_input_mode()
 
 func game_over(reason: String):
-	player.set_command("STOP")
-	print("Game Over: ", reason)
+	player.execute_action(command_db["STOP"])
 	retry_dialog.show_fail_dialog()

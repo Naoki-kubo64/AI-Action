@@ -30,8 +30,14 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 	print("[LLMService] Request URL: ", url.replace(api_key, "HIDDEN_KEY"))
 	var headers = ["Content-Type: application/json"]
 	
-	var system_prompt = profile.get_combined_system_prompt(is_pro)
-	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output a list of commands separated by commas. Example: 'RIGHT, JUMP_RIGHT, RIGHT'. Available commands: [RIGHT, LEFT, JUMP, JUMP_RIGHT, STOP, JUMP_LEFT]. 'RIGHT' means Walk Right. Do not add any explanation."
+	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output a list of commands separated by commas. Use nuances based on user intent.\n"
+	full_prompt += "COMMAND LIST:\n"
+	full_prompt += "- Move: CREEP_RIGHT/LEFT (Slow), STEP_RIGHT/LEFT, WALK_RIGHT/LEFT, RUN_RIGHT/LEFT, SPRINT_RIGHT/LEFT (Fast)\n"
+	full_prompt += "- Jump: HOP (Low), JUMP, HIGH_JUMP, SUPER_JUMP (High)\n"
+	full_prompt += "- Directional Jump: HOP_RIGHT/LEFT, JUMP_RIGHT/LEFT, LONG_JUMP_RIGHT/LEFT (Far), DASH_JUMP_RIGHT/LEFT (Very Far)\n"
+	full_prompt += "- Misc: WAIT, DANCE, PANIC\n"
+	full_prompt += "Example: 'RUN_RIGHT, LONG_JUMP_RIGHT, WALK_RIGHT'\n"
+	full_prompt += "Output ONLY the command list."
 	
 	print("[LLMService] Sending Prompt:\n", full_prompt)
 	
