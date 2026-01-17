@@ -26,6 +26,17 @@ func _physics_process(delta):
 	# Apply Gravity
 	if not is_on_floor():
 		velocity.y += gravity * delta
+		
+	# DEBUG: Force Label
+	if not has_node("DebugLabel"):
+		var l = Label.new()
+		l.name = "DebugLabel"
+		l.position = Vector2(-100, -100)
+		l.text = "PLAYER ACTIVE"
+		l.modulate = Color.RED
+		l.scale = Vector2(2, 2)
+		add_child(l)
+	$DebugLabel.text = "Pos: " + str(position) + "\nLevel: " + LevelManager.get_current_level_path()
 	
 	# Landing / Jumping detection for Squash & Stretch
 	if is_on_floor() and not was_on_floor:

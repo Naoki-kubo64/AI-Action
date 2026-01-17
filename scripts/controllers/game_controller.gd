@@ -375,6 +375,8 @@ func _log(msg: String):
 	print(msg)
 	if has_node("CanvasLayer/DebugLog"):
 		var log_node = $CanvasLayer/DebugLog
+		log_node.text += msg + "\n"
+		log_node.scroll_vertical = INF
 
 func _construct_manual_level_1_1(parent: Node2D):
 	var block_scene = load("res://scenes/block.tscn")
