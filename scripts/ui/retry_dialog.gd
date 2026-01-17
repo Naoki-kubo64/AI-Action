@@ -15,3 +15,6 @@ func _on_retry_pro_pressed():
 	print("Processing Payment for Pro Retry...")
 	retry_requested.emit(true)
 	visible = false
+
+func _on_menu_pressed():
+	get_tree().change_scene_to_file("res://scenes/main_menu.tscn")

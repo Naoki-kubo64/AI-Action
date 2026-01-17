@@ -165,7 +165,12 @@ text = "Retry Standard (Free)"
 layout_mode = 2
 text = "Retry Pro (Pay $)"
 
+[node name="MenuButton" type="Button" parent="CanvasLayer/RetryDialog/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Return to Menu"
+
 [connection signal="pressed" from="CanvasLayer/PromptInputUI/Panel/VBoxContainer/StartButton" to="CanvasLayer/PromptInputUI" method="_on_start_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryStandard" to="CanvasLayer/RetryDialog" method="_on_retry_standard_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryPro" to="CanvasLayer/RetryDialog" method="_on_retry_pro_pressed"]
+[connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/MenuButton" to="CanvasLayer/RetryDialog" method="_on_menu_pressed"]
 [connection signal="retry_requested" from="CanvasLayer/RetryDialog" to="." method="_on_retry_requested"]
