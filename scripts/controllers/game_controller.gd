@@ -157,9 +157,15 @@ func _reset_game():
 	_log("[Game] Loading Level: " + level_path)
 	
 	if not ResourceLoader.exists(level_path):
-		_log("[Game] ERROR: File not found! Using Generator.")
-		var level_gen = $LevelGenerator
-		start_pos = level_gen.generate_level($LevelRoot)
+		_log("[Game] ERROR: File not found! Checking Fallback...")
+		if "1-1" in level_path:
+			_log("[Game] Constructing MANUAL Level 1-1 (Fallback).")
+			_construct_manual_level_1_1($LevelRoot)
+			start_pos = Vector2(96, 400)
+		else:
+			_log("[Game] Using Random Generator.")
+			var level_gen = $LevelGenerator
+			start_pos = level_gen.generate_level($LevelRoot)
 	else:
 		_log("[Game] File found. Loading...")
 		var level_scene = load(level_path)
