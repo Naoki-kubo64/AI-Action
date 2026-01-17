@@ -22,5 +22,5 @@ func _on_start_button_pressed():
 	if prompt.strip_edges() == "":
 		prompt = "Move carefully and reach the goal." # Default
 	
-	visible = false
+	# visible = false # Controlled by GameController
 	game_start_requested.emit(prompt, api_key)

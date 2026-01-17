@@ -4,10 +4,13 @@ class_name GameController
 @onready var player: PlayerController = $Player
 @onready var retry_dialog = $CanvasLayer/RetryDialog
 @onready var prompt_ui = $CanvasLayer/PromptInputUI
+@onready var camera = $Player/Camera2D
+
+enum State { PREVIEW, INPUT, ACTION }
+var current_state = State.PREVIEW
 
 var turn_count: int = 0
-var max_turns: int = 30 # Increased for platformer
-var game_active: bool = false
+var max_turns: int = 30
 var user_prompt: String = ""
 
 func _ready():
@@ -16,42 +19,69 @@ func _ready():
 		print("[GameController] Initialized with ", GameManager.current_character.character_name)
 		player.modulate = GameManager.current_character.base_color
 	
-	# Wait for Prompt UI
-	prompt_ui.visible = true
-	prompt_ui.game_start_requested.connect(_on_game_start_requested)
+	# Connect signals
+	prompt_ui.game_start_requested.connect(_on_prompt_submitted)
 	LLMService.response_received.connect(_on_llm_response)
-
-func _on_game_start_requested(prompt: String, key: String):
-	user_prompt = prompt
-	GameManager.api_key = key
-	print("Game Starting with Prompt: ", prompt)
 	
 	# Generate Level
 	var level_gen = $LevelGenerator
 	var start_pos = level_gen.generate_level($LevelRoot)
 	player.position = start_pos
 	
-	game_active = true
-	start_turn()
+	# Start Sequence
+	_enter_preview_mode()
 
-func start_turn():
-	if not game_active: return
-	turn_count += 1
-	if turn_count > max_turns:
-		game_over("Turn Limit Reached")
+func _enter_preview_mode():
+	current_state = State.PREVIEW
+	print("[GameController] State: PREVIEW")
+	prompt_ui.visible = false
+	
+	# Zoom out to show level
+	var tween = create_tween()
+	tween.tween_property(camera, "zoom", Vector2(0.5, 0.5), 1.0)
+	
+	# Wait for 2 seconds then go to input
+	await get_tree().create_timer(2.0).timeout
+	_enter_input_mode()
+
+func _enter_input_mode():
+	current_state = State.INPUT
+	print("[GameController] State: INPUT")
+	
+	# Zoom in to player
+	var tween = create_tween()
+	tween.tween_property(camera, "zoom", Vector2(1.5, 1.5), 0.5)
+	
+	prompt_ui.visible = true
+	# Optional: prompt_ui.grab_focus() if implemented
+
+func _on_prompt_submitted(prompt: String, key: String):
+	if current_state != State.INPUT: return
+	
+	user_prompt = prompt
+	GameManager.api_key = key
+	
+	_enter_action_mode()
+
+func _enter_action_mode():
+	current_state = State.ACTION
+	print("[GameController] State: ACTION")
+	prompt_ui.visible = false
+	
+	# Request AI Action ONE TIME
+	_request_ai_action()
+
+func _request_ai_action():
+	if GameManager.current_character == null: 
+		print("[GameController] No character, skipping.")
+		_finish_action()
 		return
-
-	print("--- Turn ", turn_count, " ---")
-	request_ai_action()
-
-func request_ai_action():
-	if GameManager.current_character == null: return
 	
 	# Platformer Context
-	# Raycast or logic to detect surroundings
 	var context = _get_platformer_context()
 	var full_input = "User Instruction: " + user_prompt + "\nContext: " + context
 	
+	print("[GameController] Requesting AI Action... Prompt: ", user_prompt)
 	LLMService.request_action(
 		GameManager.current_character, 
 		GameManager.is_pro_mode, 
@@ -59,36 +89,46 @@ func request_ai_action():
 	)
 
 func _get_platformer_context() -> String:
-	# Simple mock context generator
-	# In real game, use RayCast2D to detect walls/gaps properly
 	var pos_x = int(player.position.x / 64)
-	return "Player at X=" + str(pos_x) + ". Ground: " + str(player.is_on_floor())
+	return "Player at X-Grid=" + str(pos_x) + ". Is On Floor: " + str(player.is_on_floor())
 
 func _on_llm_response(response: String):
+	if current_state != State.ACTION: return
+	
 	print("[GameController] AI Raw Response: ", response)
 	
-	# Parse response (Simple keyword matching for prototype)
-	# Expected: [JUMP], [RIGHT], [STOP]
+	# Parse response
 	var cmd = "STOP"
-	if "JUMP" in response or "jump" in response.to_lower():
-		if "RIGHT" in response or "forward" in response.to_lower():
-			cmd = "JUMP_RIGHT"
-		else:
-			cmd = "JUMP"
-	elif "RIGHT" in response or "forward" in response.to_lower():
-		cmd = "RIGHT"
-	elif "LEFT" in response:
+	var lower_res = response.to_lower()
+	
+	if "jump_right" in lower_res or ("jump" in lower_res and "right" in lower_res):
+		cmd = "JUMP_RIGHT"
+	elif "jump" in lower_res:
+		cmd = "JUMP"
+	elif "left" in lower_res:
 		cmd = "LEFT"
-		
-	print("[GameController] Executing: ", cmd)
+	elif "right" in lower_res: # Check right last to avoid overriding jump_right
+		cmd = "RIGHT"
+	
+	print("[GameController] Executing Command: ", cmd)
 	player.set_command(cmd)
 	
-	# Platformer is real-time, but here we update AI decision periodically
-	await get_tree().create_timer(1.0).timeout
-	start_turn()
+	# Let the action run for a fixed duration (e.g. 2 seconds for 'Walk 2 steps')
+	# Then STOP and return to input
+	await get_tree().create_timer(2.0).timeout
+	
+	_finish_action()
+
+func _finish_action():
+	print("[GameController] Action Finished. Stopping.")
+	player.set_command("STOP")
+	
+	# Check Win/Loss conditions here if needed
+	
+	# Return to Input
+	_enter_input_mode()
 
 func game_over(reason: String):
-	game_active = false
 	player.set_command("STOP")
 	print("Game Over: ", reason)
 	retry_dialog.show_fail_dialog()

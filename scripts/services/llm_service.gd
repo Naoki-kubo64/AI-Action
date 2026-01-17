@@ -4,12 +4,6 @@ signal response_received(response_text: String)
 signal error_occured(error_msg: String)
 
 func request_action(profile: AICharacterProfile, is_pro_mode: bool, user_input: String) -> void:
-	# API Key check (GameController should pass the API Key, but for now we might need to access it differently or pass it in context)
-	# NOTE: For this prototype, we'll assume the API KEY is passed OR we look it up from PromptUI/GameManager storage.
-	# But actually, request_action signature in previous step didn't have api_key.
-	# We should update GameManager to store api_key and pass it, or update signature.
-	# Let's assume GameManager stores the active API KEY.
-	
 	var api_key = GameManager.api_key
 	if api_key == "":
 		print("[LLMService] No API Key. Using Mock.")
@@ -31,14 +25,15 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 	http_request.request_completed.connect(_on_gemini_request_completed.bind(http_request))
 	
 	var model = "gemini-2.0-flash"
-	
 	var url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + api_key
 	
 	print("[LLMService] Request URL: ", url.replace(api_key, "HIDDEN_KEY"))
 	var headers = ["Content-Type: application/json"]
 	
 	var system_prompt = profile.get_combined_system_prompt(is_pro)
-	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output ONLY a single command from [RIGHT, LEFT, JUMP, JUMP_RIGHT, STOP]. No other text."
+	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output ONLY a single command from [RIGHT, LEFT, JUMP, JUMP_RIGHT, STOP]. Do not add any explanation."
+	
+	print("[LLMService] Sending Prompt:\n", full_prompt)
 	
 	var body = JSON.stringify({
 		"contents": [{
@@ -64,6 +59,8 @@ func _on_gemini_request_completed(result, response_code, headers, body, http_req
 			print("[LLMService] Invalid JSON response: ", body.get_string_from_utf8())
 	else:
 		print("[LLMService] Server Error: ", response_code)
+		# Print body for debugging 404s or 400s
+		print("[LLMService] Error Body: ", body.get_string_from_utf8())
 	
 	response_received.emit(response_text)
 	http_request.queue_free()
@@ -74,8 +71,4 @@ func _mock_request(profile, is_pro, input):
 	response_received.emit("RIGHT")
 
 func _get_model_name(provider: String, is_pro: bool) -> String:
-	match provider:
-		"openai": return "gpt-4" if is_pro else "gpt-3.5-turbo"
-		"google": return "gemini-1.5-pro" if is_pro else "gemini-1.5-flash"
-		"anthropic": return "claude-3-opus" if is_pro else "claude-3-haiku"
-		_: return "unknown"
+	return "gemini-2.0-flash"
