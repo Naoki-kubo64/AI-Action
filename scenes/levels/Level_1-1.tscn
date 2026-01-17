@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://level1-1"]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="PackedScene" uid="uid://block001" path="res://scenes/block.tscn" id="1_block"]
 
@@ -9,54 +9,59 @@ position = Vector2(96, 400)
 
 [node name="Floor" type="Node2D" parent="."]
 
+# Flat Area (Left side)
 [node name="Block" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(0, 512)
-
 [node name="Block2" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(64, 512)
-
 [node name="Block3" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(128, 512)
-
 [node name="Block4" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(192, 512)
-
 [node name="Block5" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(256, 512)
-
 [node name="Block6" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(320, 512)
 
+# Stairs (Right side)
+# Stack 1 (Height 1) - Just floor continue
 [node name="Block7" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(384, 512)
-# Gap
+
+# Stack 2 (Height 2)
 [node name="Block8" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(576, 512)
-
+position = Vector2(448, 512)
 [node name="Block9" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(640, 512)
+position = Vector2(448, 448)
 
+# Stack 3 (Height 3)
 [node name="Block10" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(704, 512)
-
-# High Wall
+position = Vector2(512, 512)
 [node name="Block11" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(768, 448)
-
+position = Vector2(512, 448)
 [node name="Block12" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(768, 512)
+position = Vector2(512, 384)
+
+# Stack 4 (Height 4)
+[node name="Block13" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(576, 512)
+[node name="Block14" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(576, 448)
+[node name="Block15" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(576, 384)
+[node name="Block16" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(576, 320)
 
 [node name="GoalArea" type="Area2D" parent="." groups=["goal"]]
-position = Vector2(800, 384)
+position = Vector2(576, 256)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoalArea"]
+position = Vector2(32, 32)
 shape = SubResource("RectangleShape2D_goal")
 
 [node name="ColorRect" type="ColorRect" parent="GoalArea"]
-offset_left = -32.0
-offset_top = -32.0
-offset_right = 32.0
-offset_bottom = 32.0
+offset_right = 64.0
+offset_bottom = 64.0
 color = Color(1, 0.84, 0, 0.5)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
