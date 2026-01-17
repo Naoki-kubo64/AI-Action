@@ -85,3 +85,12 @@ func _setup_visuals():
 	])
 	right_eye.color = Color.BLACK
 	visuals.add_child(right_eye)
+	
+	# Collision Shape
+	if not has_node("CollisionShape2D"):
+		var col = CollisionShape2D.new()
+		col.name = "CollisionShape2D"
+		var shape = RectangleShape2D.new()
+		shape.size = Vector2(40, 48) # Match visual size roughly
+		col.shape = shape
+		add_child(col)

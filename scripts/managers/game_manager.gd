@@ -2,6 +2,7 @@ extends Node
 
 var current_character: AICharacterProfile
 var is_pro_mode: bool = false
+var api_key: String = ""
 
 func start_game(character: AICharacterProfile, pro_mode: bool):
 	current_character = character

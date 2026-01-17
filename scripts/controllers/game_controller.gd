@@ -21,9 +21,9 @@ func _ready():
 	prompt_ui.game_start_requested.connect(_on_game_start_requested)
 	LLMService.response_received.connect(_on_llm_response)
 
-func _on_game_start_requested(prompt: String, api_key: String):
+func _on_game_start_requested(prompt: String, key: String):
 	user_prompt = prompt
-	# Set API Key if provided (mock for now, or actual service update)
+	GameManager.api_key = key
 	print("Game Starting with Prompt: ", prompt)
 	
 	# Generate Level

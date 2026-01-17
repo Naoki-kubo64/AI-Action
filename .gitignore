@@ -1,0 +1,6 @@
+.godot/
+*.import
+export_presets.cfg
+
+# Secrets
+secret_api_key.txt
