@@ -258,8 +258,10 @@ func _setup_visuals():
 
 signal hit_hazard
 signal hit_goal
+signal debug_message(msg: String)
 
 func _on_area_entered(area: Area2D):
+	debug_message.emit("Hit Area: " + area.name + " Groups: " + str(area.get_groups()))
 	if area.is_in_group("hazard"):
 		hit_hazard.emit()
 	elif area.is_in_group("goal"):

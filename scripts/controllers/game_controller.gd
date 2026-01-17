@@ -102,6 +102,8 @@ func _ready():
 		player.hit_hazard.connect(_on_player_hit_hazard)
 	if not player.hit_goal.is_connected(_on_player_hit_goal):
 		player.hit_goal.connect(_on_player_hit_goal)
+	if not player.debug_message.is_connected(_log):
+		player.debug_message.connect(_log)
 	
 	_enter_preview_mode()
 	_setup_minimap()
@@ -152,18 +154,19 @@ func _reset_game():
 	
 	# Load Level from Manager
 	var level_path = LevelManager.get_current_level_path()
-	print("[GameController] Attempting to load level: '", level_path, "'")
+	_log("[Game] Loading Level: " + level_path)
 	
 	if not ResourceLoader.exists(level_path):
-		print("[GameController] Level file not found: ", level_path, ". Using Generator Fallback.")
+		_log("[Game] ERROR: File not found! Using Generator.")
 		var level_gen = $LevelGenerator
 		start_pos = level_gen.generate_level($LevelRoot)
 	else:
-		print("[GameController] Level found. Instantiating.")
+		_log("[Game] File found. Loading...")
 		var level_scene = load(level_path)
 		if level_scene:
 			var level_instance = level_scene.instantiate()
 			$LevelRoot.add_child(level_instance)
+			_log("[Game] Level Instantiated Successfully.")
 			
 			# Find start pos
 			var start_node = level_instance.get_node_or_null("PlayerStart")
@@ -172,7 +175,7 @@ func _reset_game():
 			else:
 				start_pos = Vector2(100, 100) # Default
 		else:
-			print("[GameController] Failed to load level scene: ", level_path, ". Using Fallback.")
+			_log("[Game] CRITICAL: Load failed (null). Using Generator.")
 			var level_gen = $LevelGenerator
 			start_pos = level_gen.generate_level($LevelRoot)
 	
@@ -356,3 +359,14 @@ func game_over(reason: String):
 	retry_dialog.show_fail_dialog(reason)
 	# Trigger Memory Update
 	LLMService.request_summarization()
+
+func _input(event):
+	if event.is_action_pressed("toggle_debug"):
+		$CanvasLayer/DebugLog.visible = not $CanvasLayer/DebugLog.visible
+
+func _log(msg: String):
+	print(msg)
+	if has_node("CanvasLayer/DebugLog"):
+		var log_node = $CanvasLayer/DebugLog
+		log_node.text += msg + "\n"
+		log_node.scroll_vertical = INF # Auto scroll logic if needed, but TextEdit handles it mostly

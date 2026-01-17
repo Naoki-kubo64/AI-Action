@@ -179,6 +179,18 @@ text = "Retry Pro (Pay $)"
 layout_mode = 2
 text = "Return to Menu"
 
+[node name="DebugLog" type="TextEdit" parent="CanvasLayer"]
+visible = true
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -150.0
+grow_horizontal = 2
+grow_vertical = 0
+editable = false
+wrap_mode = 1
+
 [connection signal="pressed" from="CanvasLayer/PromptInputUI/Panel/VBoxContainer/StartButton" to="CanvasLayer/PromptInputUI" method="_on_start_button_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryStandard" to="CanvasLayer/RetryDialog" method="_on_retry_standard_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryPro" to="CanvasLayer/RetryDialog" method="_on_retry_pro_pressed"]
