@@ -104,7 +104,8 @@ func _ready():
 	_setup_minimap()
 
 func _on_player_hit_hazard():
-	if current_state != State.PREVIEW and current_state != State.INPUT: # Don't kill if merely previewing? actually hazard allows killing anytime active
+	if current_state != State.PREVIEW and current_state != State.INPUT: 
+		trigger_shake(20.0) # Shake screen
 		game_over("Hit Hazard")
 
 func _on_player_hit_goal():
@@ -198,6 +199,23 @@ func _process(delta):
 		# Player fell off
 		if current_state != State.PREVIEW: # Avoid loop
 			game_over("Fell off world")
+	
+	# Camera Shake
+	if shake_strength > 0:
+		shake_strength = lerp(shake_strength, 0.0, shake_decay * delta)
+		var offset = Vector2(
+			randf_range(-shake_strength, shake_strength),
+			randf_range(-shake_strength, shake_strength)
+		)
+		camera.offset = offset
+	else:
+		camera.offset = Vector2.ZERO
+
+var shake_strength: float = 0.0
+var shake_decay: float = 5.0
+
+func trigger_shake(amount: float):
+	shake_strength = amount
 
 func _request_ai_action():
 	if GameManager.current_character == null: 

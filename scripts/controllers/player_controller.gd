@@ -15,6 +15,7 @@ var is_stumbling: bool = false
 var is_sliding: bool = false
 var special_timer: float = 0.0
 var active_special: String = ""
+var was_on_floor: bool = false
 
 func _ready():
 	_setup_visuals()
@@ -24,6 +25,12 @@ func _physics_process(delta):
 	if not is_on_floor():
 		velocity.y += gravity * delta
 	
+	# Landing / Jumping detection for Squash & Stretch
+	if is_on_floor() and not was_on_floor:
+		_animate_squash(Vector2(1.2, 0.8)) # Land = Squash
+	
+	was_on_floor = is_on_floor()
+
 	# Special Logic modifiers
 	var speed_multiplier = 1.0
 	
@@ -84,7 +91,13 @@ func execute_action(action_data: Dictionary):
 		$Visuals.rotation_degrees = 45
 	elif special == "LOOK_AROUND":
 		special_timer = 0.0
-	elif special == "DANCE":
+	# vertical
+	if jump_mod > 0.0 and is_on_floor():
+		velocity.y = jump_force * jump_mod
+		_animate_squash(Vector2(0.8, 1.2)) # Jump = Stretch
+	
+	# Special
+	if special == "DANCE":
 		is_dancing = true
 	elif special == "PANIC":
 		_start_panic()
@@ -93,6 +106,16 @@ func execute_action(action_data: Dictionary):
 		target_velocity_x = move_speed * speed_mod
 		if jump_mod > 0.0 and is_on_floor():
 			velocity.y = jump_force * jump_mod
+			_animate_squash(Vector2(0.8, 1.2)) # Jump = Stretch
+
+func _animate_squash(target_scale: Vector2):
+	# Don't squash if special transforms (slide) are active
+	if active_special == "SLIDE": return
+	if not has_node("Visuals"): return
+	
+	var tween = create_tween()
+	tween.tween_property($Visuals, "scale", target_scale, 0.1).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property($Visuals, "scale", Vector2.ONE, 0.2).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 func _reset_special_states():
 	is_dancing = false

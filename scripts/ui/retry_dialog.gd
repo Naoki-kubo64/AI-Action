@@ -4,7 +4,7 @@ signal retry_requested(use_pro_mode: bool)
 
 func show_fail_dialog(title: String = "MISSION FAILED"):
 	visible = true
-	$Panel/Label.text = title
+	$Panel/VBoxContainer/Label.text = title
 
 func _on_retry_standard_pressed():
 	retry_requested.emit(false)

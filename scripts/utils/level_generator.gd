@@ -34,19 +34,18 @@ func generate_level(root_node: Node2D) -> Vector2:
 	var segments_to_gen = level_length - safe_zone_start - safe_zone_end
 	
 	while segments_to_gen > 0:
-		var segment_type = rng.randi_range(0, 3) # 0: Flat, 1: Gap, 2: Step Up, 3: Step Down
+		var segment_type = rng.randi_range(0, 5) # Expanded types
 		var length = rng.randi_range(2, 5)
 		if length > segments_to_gen: length = segments_to_gen
 		
 		match segment_type:
-			0: # Flat
+			0, 4: # Flat (Common)
 				_create_platform(vis_layer, phys_layer, current_x, current_y, length)
-				# 20% Chance for Obstacle
 				if length > 3 and rng.randf() < 0.2:
 					_create_obstacle(vis_layer, phys_layer, current_x + 2, current_y - 1)
 				current_x += length
 			1: # Gap
-				current_x += length # Just advance X without floor
+				current_x += length
 			2: # Step Up
 				current_y -= 1
 				if current_y < 2: current_y = 2
@@ -56,6 +55,10 @@ func generate_level(root_node: Node2D) -> Vector2:
 				current_y += 1
 				if current_y > 8: current_y = 8
 				_create_platform(vis_layer, phys_layer, current_x, current_y, length)
+				current_x += length
+			5: # Moving Platform (Gap + Island)
+				if length < 3: length = 3
+				_create_moving_platform(vis_layer, phys_layer, current_x, current_y, length)
 				current_x += length
 				
 		segments_to_gen -= length
@@ -149,7 +152,42 @@ func _create_goal(vis_layer, phys_layer, x, y):
 	var shape = RectangleShape2D.new()
 	shape.size = Vector2(grid_size, grid_size * 2)
 	
+func _create_moving_platform(vis_layer, phys_layer, start_x, start_y, length):
+	var plat_len = 3 # Fixed small size for moving plat
+	var x_pixel = start_x * grid_size
+	var y_pixel = start_y * grid_size
+	
+	var anim_body = AnimatableBody2D.new()
+	anim_body.position = Vector2(x_pixel, y_pixel)
+	anim_body.sync_to_physics = false # Tween handles it
+	
+	# Visuals + Collision
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(plat_len * grid_size, grid_size)
 	var col = CollisionShape2D.new()
 	col.shape = shape
-	area.add_child(col)
-	phys_layer.add_child(area)
+	col.position = Vector2((plat_len * grid_size)/2.0, grid_size/2.0)
+	anim_body.add_child(col)
+	
+	var visual = ColorRect.new()
+	visual.size = Vector2(plat_len * grid_size, grid_size)
+	visual.color = Color.AQUA # Distinct color
+	anim_body.add_child(visual)
+	
+	phys_layer.add_child(anim_body)
+	
+	# Add Movement Logic via Tween (Simple script attachment or just inline tween managing node?)
+	# Since this is generated, simpler to attach a script or just maximize randomness by
+	# letting the Tween loop? Tweens are Nodes in Godot 3, but lightweight objects in 4.
+	# We need a Node to hold the Tween reference if we want loops? 
+	# A simple way: Attach a script to the AnimatableBody2D that runs a tween in _ready.
+	
+	var script = GDScript.new()
+	script.source_code = """
+extends AnimatableBody2D
+func _ready():
+	var tween = create_tween().set_loops()
+	tween.tween_property(self, 'position:y', position.y - 128, 2.0).set_trans(Tween.TRANS_SINE)
+	tween.tween_property(self, 'position:y', position.y, 2.0).set_trans(Tween.TRANS_SINE)
+"""
+	anim_body.set_script(script)

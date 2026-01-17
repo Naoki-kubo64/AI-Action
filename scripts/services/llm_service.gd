@@ -3,6 +3,9 @@ extends Node
 signal response_received(response_text: String)
 signal error_occured(error_msg: String)
 
+var chat_history: Array = []
+const MAX_HISTORY: int = 20 # 10 turns (User + Model pairs)
+
 func request_action(profile: AICharacterProfile, is_pro_mode: bool, user_input: String) -> void:
 	var api_key = GameManager.api_key
 	if api_key == "":
