@@ -6,7 +6,7 @@ class_name GameController
 @onready var prompt_ui = $CanvasLayer/PromptInputUI
 @onready var camera = $Player/Camera2D
 
-enum State {PREVIEW, INPUT, ACTION}
+enum State {PREVIEW, INPUT, ACTION, GAMEOVER}
 var current_state = State.PREVIEW
 
 var turn_count: int = 0
@@ -202,6 +202,8 @@ func _enter_preview_mode():
 	_enter_input_mode()
 
 func _enter_input_mode():
+	if current_state == State.GAMEOVER: return
+	
 	current_state = State.INPUT
 	var tween = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS) # Allow tween during pause
 	tween.tween_property(camera, "zoom", Vector2(1.5, 1.5), 0.5)
@@ -334,7 +336,40 @@ func _finish_action():
 	
 	_enter_input_mode()
 
+enum State {PREVIEW, INPUT, ACTION, GAMEOVER}
+var current_state = State.PREVIEW
+
+# ... (omitted)
+
+func _finish_action():
+	if current_state == State.GAMEOVER: return
+	
+	print("[GameController] Action Finished. Waiting for stop...")
+	player.execute_action(command_db["STOP"])
+	
+	# Wait for player to stabilize
+	# We wait until on floor AND velocity is low
+	var wait_time = 0.0
+	while wait_time < 3.0: # Max wait 3s to prevent softlock
+		if current_state == State.GAMEOVER: return
+		
+		if player.is_on_floor() and player.velocity.length() < 10.0:
+			break
+		await get_tree().physics_frame
+		wait_time += get_physics_process_delta_time()
+		
+		# Allow early exit if player falls off map (game over handles it)
+		if player.position.y > 1500:
+			# Redundant check but safe
+			break
+	
+	if current_state == State.GAMEOVER: return
+	_enter_input_mode()
+
 func game_over(reason: String):
+	if current_state == State.GAMEOVER: return # Prevent double trigger
+	current_state = State.GAMEOVER
+	
 	player.execute_action(command_db["STOP"])
 	retry_dialog.show_fail_dialog(reason)
 	# Trigger Memory Update

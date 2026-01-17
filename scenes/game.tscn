@@ -127,6 +127,7 @@ layout_mode = 2
 text = "Start Mission"
 
 [node name="RetryDialog" type="Control" parent="CanvasLayer"]
+process_mode = 3
 visible = false
 
 layout_mode = 3
