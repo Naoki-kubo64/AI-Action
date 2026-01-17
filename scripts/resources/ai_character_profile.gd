@@ -1,10 +1,11 @@
 class_name AICharacterProfile
 extends Resource
 
-@export var character_name: String
+@export var character_name: String = "AI Explorer"
 @export_multiline var description: String
 @export var base_color: Color = Color.WHITE
-@export_enum("openai", "google", "anthropic") var provider_id: String = "openai"
+@export_enum("openai", "google", "anthropic") var provider_id: String = "google"
+@export var model_name: String = "gemini-2.0-flash"
 @export var portrait: Texture2D
 
 # 課金判定前のベースSystem Prompt (性格定義など)

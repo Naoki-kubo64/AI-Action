@@ -56,14 +56,14 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 		
 		chat_history.append({
 			"role": "user",
-			"parts": [{"text": system_prompt + "\n\n" + prompt_instruction}]
+			"parts": [ {"text": system_prompt + "\n\n" + prompt_instruction}]
 		})
 		# Fake model ack to start conversation properly? No, Gemini handles system context in first user msg usually fine.
 	
 	# 2. Append User Input
 	chat_history.append({
 		"role": "user",
-		"parts": [{"text": input}]
+		"parts": [ {"text": input}]
 	})
 	
 	# 3. Prune History if too long (Keep index 0 as System Prompt)
@@ -100,7 +100,7 @@ func _on_gemini_request_completed(result, response_code, headers, body, http_req
 		# Append Model Response to History
 		chat_history.append({
 			"role": "model",
-			"parts": [{"text": text}]
+			"parts": [ {"text": text}]
 		})
 		
 		response_received.emit(text)
@@ -138,14 +138,14 @@ func request_summarization():
 	prompt += "Output ONLY the updated JSON object. Keep the same structure: {player_personality, learned_skills, relationship_level, last_feedback}."
 	
 	var body = JSON.stringify({
-		"contents": [{
-			"parts": [{"text": prompt}]
+		"contents": [ {
+			"parts": [ {"text": prompt}]
 		}]
 	})
 	
 	summarization_request.request(url, ["Content-Type: application/json"], HTTPClient.METHOD_POST, body)
 
-func _on_summary_completed(result, response_code, headers, body, request_node):
+func _on_summary_completed(result, response_code, headers, body, _request_node):
 	if response_code == 200:
 		var json = JSON.parse_string(body.get_string_from_utf8())
 		if json and json.has("candidates"):
@@ -161,12 +161,11 @@ func _on_summary_completed(result, response_code, headers, body, request_node):
 	else:
 		print("[LLMService] Summary Request Failed: ", response_code)
 	
-	request_node.queue_free()
-
-func _mock_request(profile, is_pro, input):
+func _mock_request(_profile, _is_pro, _input):
 	print("[LLMService] Mocking response...")
 	await get_tree().create_timer(0.5).timeout
-	response_received.emit("RIGHT")
+	# Return valid JSON for parser
+	response_received.emit('[{"action": "WALK_RIGHT", "duration": 1.0}]')
 
 func _get_model_name(provider: String, is_pro: bool) -> String:
 	return "gemini-2.0-flash"

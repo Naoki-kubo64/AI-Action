@@ -141,11 +141,14 @@ func _reset_game():
 	
 	# Load Level from Manager
 	var level_path = LevelManager.get_current_level_path()
+	print("[GameController] Attempting to load level: '", level_path, "'")
+	
 	if not ResourceLoader.exists(level_path):
 		print("[GameController] Level file not found: ", level_path, ". Using Generator Fallback.")
 		var level_gen = $LevelGenerator
 		start_pos = level_gen.generate_level($LevelRoot)
 	else:
+		print("[GameController] Level found. Instantiating.")
 		var level_scene = load(level_path)
 		var level_instance = level_scene.instantiate()
 		$LevelRoot.add_child(level_instance)

@@ -7,5 +7,5 @@ script = ExtResource("1_script")
 character_name = "Type C"
 description = "Safe and precise. Claude motif."
 base_color = Color(0.8, 0.4, 0.2, 1.0)
-provider_id = "anthropic"
+provider_id = "google"
 system_prompt_base = "You are Type C, a cautious AI assistant. Prioritize safety and accuracy above all."
