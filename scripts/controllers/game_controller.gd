@@ -128,8 +128,8 @@ func _on_player_hit_goal():
 	# Wait and Advance
 	await get_tree().create_timer(3.0).timeout
 	
+	# next_level() calls load_current_level() which calls _reset_game() internally
 	LevelManager.next_level()
-	_reset_game()
 
 
 func _on_retry_requested(use_pro: bool):
