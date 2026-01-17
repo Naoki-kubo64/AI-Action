@@ -12,6 +12,7 @@ var current_state = State.PREVIEW
 var turn_count: int = 0
 var max_turns: int = 30
 var user_prompt: String = ""
+var start_pos: Vector2 = Vector2.ZERO
 
 # --- COMMAND DICTIONARY ---
 # Defines properties for every possible AI command
@@ -87,13 +88,38 @@ func _ready():
 	
 	prompt_ui.game_start_requested.connect(_on_prompt_submitted)
 	LLMService.response_received.connect(_on_llm_response)
+	retry_dialog.retry_requested.connect(_on_retry_requested)
 	
 	var level_gen = $LevelGenerator
-	var start_pos = level_gen.generate_level($LevelRoot)
+	start_pos = level_gen.generate_level($LevelRoot)
 	player.position = start_pos
 	
 	_enter_preview_mode()
 	_setup_minimap()
+
+func _on_retry_requested(use_pro: bool):
+	GameManager.is_pro_mode = use_pro
+	_reset_game()
+
+func _reset_game():
+	print("[GameController] Resetting Game...")
+	turn_count = 0
+	
+	# Regenerate Level for fresh experience
+	var level_gen = $LevelGenerator
+	start_pos = level_gen.generate_level($LevelRoot)
+	
+	player.position = start_pos
+	player.velocity = Vector2.ZERO
+	player.execute_action(command_db["STOP"])
+	
+	# Reset Camera Smoothing immediately to prevent lag
+	camera.position_smoothing_enabled = false
+	await get_tree().process_frame
+	camera.position_smoothing_enabled = true # Re-enable if used, or leave as configured
+	camera.align() # Force update
+	
+	_enter_preview_mode()
 
 func _setup_minimap():
 	var minimap_viewport = $CanvasLayer/MinimapContainer/SubViewportContainer/SubViewport

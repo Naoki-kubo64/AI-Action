@@ -30,6 +30,7 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 	print("[LLMService] Request URL: ", url.replace(api_key, "HIDDEN_KEY"))
 	var headers = ["Content-Type: application/json"]
 	
+	var system_prompt = profile.get_combined_system_prompt(is_pro)
 	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output a list of commands separated by commas. Use nuances based on user intent.\n"
 	full_prompt += "COMMAND LIST:\n"
 	full_prompt += "- Move: CREEP_RIGHT/LEFT, STEP_RIGHT/LEFT, WALK_RIGHT/LEFT, RUN_RIGHT/LEFT, SPRINT_RIGHT/LEFT, BACK_STEP\n"
