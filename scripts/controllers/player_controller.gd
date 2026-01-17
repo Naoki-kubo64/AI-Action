@@ -165,3 +165,26 @@ func _setup_visuals():
 		shape.size = Vector2(40, 48) # Match visual size roughly
 		col.shape = shape
 		add_child(col)
+	
+	# Interaction Hitbox
+	if not has_node("Hitbox"):
+		var area = Area2D.new()
+		area.name = "Hitbox"
+		
+		var shape = RectangleShape2D.new()
+		shape.size = Vector2(40, 48)
+		var col = CollisionShape2D.new()
+		col.shape = shape
+		area.add_child(col)
+		
+		add_child(area)
+		area.area_entered.connect(_on_area_entered)
+
+signal hit_hazard
+signal hit_goal
+
+func _on_area_entered(area: Area2D):
+	if area.is_in_group("hazard"):
+		hit_hazard.emit()
+	elif area.is_in_group("goal"):
+		hit_goal.emit()

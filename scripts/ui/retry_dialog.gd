@@ -2,9 +2,9 @@ extends Control
 
 signal retry_requested(use_pro_mode: bool)
 
-func show_fail_dialog():
+func show_fail_dialog(title: String = "MISSION FAILED"):
 	visible = true
-	# メッセージ設定など
+	$Panel/Label.text = title
 
 func _on_retry_standard_pressed():
 	retry_requested.emit(false)

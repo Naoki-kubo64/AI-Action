@@ -94,8 +94,28 @@ func _ready():
 	start_pos = level_gen.generate_level($LevelRoot)
 	player.position = start_pos
 	
+	# Connect Player Signals
+	if not player.hit_hazard.is_connected(_on_player_hit_hazard):
+		player.hit_hazard.connect(_on_player_hit_hazard)
+	if not player.hit_goal.is_connected(_on_player_hit_goal):
+		player.hit_goal.connect(_on_player_hit_goal)
+	
 	_enter_preview_mode()
 	_setup_minimap()
+
+func _on_player_hit_hazard():
+	if current_state != State.PREVIEW and current_state != State.INPUT: # Don't kill if merely previewing? actually hazard allows killing anytime active
+		game_over("Hit Hazard")
+
+func _on_player_hit_goal():
+	# Victory
+	print("Level Cleared!")
+	current_state = State.PREVIEW # Stop inputs
+	player.execute_action(command_db["STOP"])
+	retry_dialog.show_fail_dialog() # Use fail dialog for now but change text logic later?
+	# Ideally show a "Success" version. For now reusing retry but should update UI script to accept title?
+	# Let's just game_over with "CLEAR!" message for prototype
+	game_over("STAGE CLEAR!")
 
 func _on_retry_requested(use_pro: bool):
 	GameManager.is_pro_mode = use_pro
@@ -107,6 +127,16 @@ func _reset_game():
 	
 	# Regenerate Level for fresh experience
 	var level_gen = $LevelGenerator
+	
+	# Clear old level manually first to ensure cleanup
+	for child in $LevelRoot.get_children():
+		child.queue_free()
+	
+	# Wait for physics frame to process deletions
+	await get_tree().physics_frame
+	await get_tree().physics_frame
+	
+	# Generate new
 	start_pos = level_gen.generate_level($LevelRoot)
 	
 	player.position = start_pos
@@ -115,9 +145,9 @@ func _reset_game():
 	
 	# Reset Camera Smoothing immediately to prevent lag
 	camera.position_smoothing_enabled = false
-	await get_tree().process_frame
-	camera.position_smoothing_enabled = true # Re-enable if used, or leave as configured
 	camera.align() # Force update
+	await get_tree().process_frame
+	camera.position_smoothing_enabled = true
 	
 	_enter_preview_mode()
 
@@ -154,7 +184,20 @@ func _on_prompt_submitted(prompt: String, key: String):
 func _enter_action_mode():
 	current_state = State.ACTION
 	prompt_ui.visible = false
+	
+	turn_count += 1
+	if turn_count > max_turns:
+		game_over("Max Turns Reached")
+		return
+
 	_request_ai_action()
+
+func _process(delta):
+	# Fall Check
+	if current_state != State.PREVIEW and player.position.y > 1500:
+		# Player fell off
+		if current_state != State.PREVIEW: # Avoid loop
+			game_over("Fell off world")
 
 func _request_ai_action():
 	if GameManager.current_character == null: 
@@ -215,4 +258,4 @@ func _finish_action():
 
 func game_over(reason: String):
 	player.execute_action(command_db["STOP"])
-	retry_dialog.show_fail_dialog()
+	retry_dialog.show_fail_dialog(reason)

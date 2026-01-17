@@ -7,7 +7,7 @@ var safe_zone_start: int = 5
 var safe_zone_end: int = 5
 
 func generate_level(root_node: Node2D) -> Vector2:
-	# Clear existing
+	# Clear existing (Just in case, though Controller handles it for resets)
 	for child in root_node.get_children():
 		child.queue_free()
 		
@@ -121,16 +121,18 @@ func _create_obstacle(vis_layer, phys_layer, x, y):
 	visual.color = Color.RED
 	vis_layer.add_child(visual)
 	
-	# Area2D for danger
-	# For now, treat as blockade
-	var static_body = StaticBody2D.new()
-	static_body.position = pos + Vector2(grid_size/2.0, grid_size/2.0)
+	# Hazard Area
+	var area = Area2D.new()
+	area.position = pos + Vector2(grid_size/2.0, grid_size/2.0)
+	area.add_to_group("hazard")
+	
 	var shape = RectangleShape2D.new()
-	shape.size = Vector2(grid_size, grid_size)
+	shape.size = Vector2(grid_size - 10, grid_size - 10) # Slightly smaller hitbox
+	
 	var col = CollisionShape2D.new()
 	col.shape = shape
-	static_body.add_child(col)
-	phys_layer.add_child(static_body)
+	area.add_child(col)
+	phys_layer.add_child(area)
 
 func _create_goal(vis_layer, phys_layer, x, y):
 	var visual = ColorRect.new()
@@ -138,3 +140,16 @@ func _create_goal(vis_layer, phys_layer, x, y):
 	visual.position = Vector2(x, y - grid_size)
 	visual.color = Color.GOLD
 	vis_layer.add_child(visual)
+	
+	# Goal Area
+	var area = Area2D.new()
+	area.position = Vector2(x + grid_size/2.0, y)
+	area.add_to_group("goal")
+	
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(grid_size, grid_size * 2)
+	
+	var col = CollisionShape2D.new()
+	col.shape = shape
+	area.add_child(col)
+	phys_layer.add_child(area)
