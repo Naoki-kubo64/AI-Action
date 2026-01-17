@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768616482
+::res://::1768616811
 README.md::TextFile::-1::1768579772::0::1::::<><><>0<>0<><>::
 secret_api_key.txt::TextFile::-1::1768615488::0::1::::<><><>0<>0<><>::
 ::res://resources/::1768578154
@@ -12,14 +12,14 @@ game.tscn::PackedScene::421869757626228735::1768579569::0::1::::<><><>0<>0<><>::
 main_menu.tscn::PackedScene::24787520941092490::1768578182::0::1::::<><><>0<>0<><>::res://scripts/ui/character_select_ui.gd<>res://resources/characters/type_o.tres<>res://resources/characters/type_g.tres<>res://resources/characters/type_c.tres
 ::res://scripts/::1768578795
 ::res://scripts/controllers/::1768578576
-game_controller.gd::GDScript::5878839804214660675::1768616439::0::1::::GameController<>Node<><>0<>0<><>::
-player_controller.gd::GDScript::2083850842837158460::1768616052::0::1::::PlayerController<>CharacterBody2D<><>0<>0<><>::
+game_controller.gd::GDScript::5878839804214660675::1768616662::0::1::::GameController<>Node<><>0<>0<><>::
+player_controller.gd::GDScript::2083850842837158460::1768616626::0::1::::PlayerController<>CharacterBody2D<><>0<>0<><>::
 ::res://scripts/managers/::1768578278
 game_manager.gd::GDScript::2455841155901181728::1768615509::0::1::::<>Node<><>0<>0<><>::
 ::res://scripts/resources/::1768578278
 ai_character_profile.gd::GDScript::4098959938436471570::1768578139::0::1::::AICharacterProfile<>Resource<><>0<>0<><>::
 ::res://scripts/services/::1768578278
-llm_service.gd::GDScript::1019255584124159377::1768616441::0::1::::<>Node<><>0<>0<><>::
+llm_service.gd::GDScript::1019255584124159377::1768616660::0::1::::<>Node<><>0<>0<><>::
 ::res://scripts/ui/::1768579719
 character_select_ui.gd::GDScript::9044863746288316371::1768578162::0::1::::<>Control<><>0<>0<><>::
 prompt_input_ui.gd::GDScript::9018350516241425730::1768616443::0::1::::<>Control<><>0<>0<><>::

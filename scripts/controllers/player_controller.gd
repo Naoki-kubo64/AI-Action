@@ -1,7 +1,7 @@
 extends CharacterBody2D
 class_name PlayerController
 
-@export var move_speed: float = 300.0
+@export var move_speed: float = 128.0
 @export var jump_force: float = -600.0
 @export var gravity: float = 1200.0
 

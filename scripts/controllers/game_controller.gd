@@ -30,6 +30,21 @@ func _ready():
 	
 	# Start Sequence
 	_enter_preview_mode()
+	
+	# Setup Minimap
+	_setup_minimap()
+
+func _setup_minimap():
+	var minimap_viewport = $CanvasLayer/MinimapContainer/SubViewportContainer/SubViewport
+	if minimap_viewport:
+		minimap_viewport.world_2d = get_viewport().world_2d
+		# Find Minimap Camera
+		var mini_cam = minimap_viewport.get_node("Camera2D")
+		if mini_cam:
+			# Sync position logic could be added in _process
+			var remote = RemoteTransform2D.new()
+			remote.remote_path = mini_cam.get_path()
+			player.add_child(remote)
 
 func _enter_preview_mode():
 	current_state = State.PREVIEW
@@ -111,9 +126,9 @@ func _on_llm_response(response: String):
 		player.set_command(cmd)
 		player.jump_triggered = false 
 		
-		# Duration per step: 1.0s (Wait less time for smoother "Walk then Jump")
-		# If user said "Walk, Jump", we walk for 1s, then jump.
-		await get_tree().create_timer(1.0).timeout
+		# Duration per step: 0.5s (Matches 128px/s * 0.5s = 64px = 1 block)
+		# If user said "Walk, Jump", we walk for 0.5s, then jump.
+		await get_tree().create_timer(0.5).timeout
 	
 	_finish_action()
 

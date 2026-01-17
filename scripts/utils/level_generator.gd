@@ -1,85 +1,140 @@
 extends Node
-class_name LevelGenerator
 
 @export var level_length: int = 50
-@export var cell_size: int = 64
+@export var grid_size: int = 64
 
-# Terrain Types: 0=Air, 1=FloorBlock, 2=Gap, 3=TallBlock, 9=Goal, 8=Enemy
-var level_data: Array = []
+var safe_zone_start: int = 5
+var safe_zone_end: int = 5
 
 func generate_level(root_node: Node2D) -> Vector2:
+	# Clear existing
 	for child in root_node.get_children():
 		child.queue_free()
-	
-	level_data.clear()
-	var start_pos = Vector2(100, 300) # Default start
-	
-	var current_height = 5 # Cells from bottom
-	var floor_y_index = 10 # Bottom of screen approx 
-	
-	# 0 to level_length
-	for x in range(level_length):
-		if x < 5: 
-			# Start area: Flat
-			_create_column(root_node, x, floor_y_index, 0)
-			if x == 2: start_pos = Vector2(x * cell_size + 32, (floor_y_index-1) * cell_size)
-		elif x == level_length - 5:
-			# Goal area
-			_create_column(root_node, x, floor_y_index, 9)
-		else:
-			# Random generation
-			var rand = randf()
-			if rand < 0.1: # Gap
-				# No floor
-				pass 
-			elif rand < 0.2: # High platform
-				_create_column(root_node, x, floor_y_index - 2, 0)
-			elif rand < 0.25: # Enemy/Obstacle
-				_create_column(root_node, x, floor_y_index, 8)
-			else: # Normal floor
-				_create_column(root_node, x, floor_y_index, 0)
-	
-	return start_pos
-
-func _create_column(root: Node2D, x: int, floor_y: int, special_type: int):
-	# Create floor block
-	if special_type != 9 and special_type != 8:
-		# Just physics static body for floor
-		var pos = Vector2(x * cell_size, floor_y * cell_size)
-		_create_block(root, pos, Color(0.2, 0.8, 0.2), true) # Green floor
-	
-	if special_type == 8: # Obstacle / Enemy
-		var pos = Vector2(x * cell_size, (floor_y - 1) * cell_size)
-		_create_block(root, pos, Color(0.8, 0.2, 0.2), true, "Enemy")
-		# Also floor below
-		var floor_pos = Vector2(x * cell_size, floor_y * cell_size)
-		_create_block(root, floor_pos, Color(0.2, 0.8, 0.2), true)
-
-	if special_type == 9: # Goal
-		var pos = Vector2(x * cell_size, (floor_y - 1) * cell_size)
-		_create_block(root, pos, Color(1.0, 0.8, 0.0), false, "Goal") # No collision rigid, trigger area ideally
-		var floor_pos = Vector2(x * cell_size, floor_y * cell_size)
-		_create_block(root, floor_pos, Color(0.2, 0.8, 0.2), true)
-
-func _create_block(parent: Node2D, pos: Vector2, color: Color, has_collision: bool, name_tag: String = ""):
-	var body
-	if has_collision:
-		body = StaticBody2D.new()
-	else:
-		body = Area2D.new() # For triggers
 		
-	body.position = pos + Vector2(cell_size/2, cell_size/2) # Center
-	if name_tag != "": body.name = name_tag
-	parent.add_child(body)
+	var rng = RandomNumberGenerator.new()
+	rng.randomize()
+	
+	# Create Layers
+	var vis_layer = Node2D.new()
+	vis_layer.name = "Visuals"
+	root_node.add_child(vis_layer)
+	
+	var phys_layer = Node2D.new()
+	phys_layer.name = "Physics"
+	root_node.add_child(phys_layer)
+	
+	var current_x = 0
+	var current_y = 5 # Start mid-height (Grid Y)
+	
+	# Start Platform
+	_create_platform(vis_layer, phys_layer, current_x, current_y, safe_zone_start)
+	current_x += safe_zone_start
+	
+	# Generate Segments
+	var segments_to_gen = level_length - safe_zone_start - safe_zone_end
+	
+	while segments_to_gen > 0:
+		var segment_type = rng.randi_range(0, 3) # 0: Flat, 1: Gap, 2: Step Up, 3: Step Down
+		var length = rng.randi_range(2, 5)
+		if length > segments_to_gen: length = segments_to_gen
+		
+		match segment_type:
+			0: # Flat
+				_create_platform(vis_layer, phys_layer, current_x, current_y, length)
+				# 20% Chance for Obstacle
+				if length > 3 and rng.randf() < 0.2:
+					_create_obstacle(vis_layer, phys_layer, current_x + 2, current_y - 1)
+				current_x += length
+			1: # Gap
+				current_x += length # Just advance X without floor
+			2: # Step Up
+				current_y -= 1
+				if current_y < 2: current_y = 2
+				_create_platform(vis_layer, phys_layer, current_x, current_y, length)
+				current_x += length
+			3: # Step Down
+				current_y += 1
+				if current_y > 8: current_y = 8
+				_create_platform(vis_layer, phys_layer, current_x, current_y, length)
+				current_x += length
+				
+		segments_to_gen -= length
+	
+	# End Platform
+	_create_platform(vis_layer, phys_layer, current_x, current_y, safe_zone_end)
+	
+	# Goal
+	var goal_x = (current_x + safe_zone_end - 2) * grid_size
+	var goal_y = (current_y - 1) * grid_size
+	_create_goal(vis_layer, phys_layer, goal_x, goal_y)
+
+	return Vector2(100, (5 * grid_size) - 64) # Player Start Pos
+
+func _create_platform(vis_layer, phys_layer, start_x, y, length):
+	# Create visual blocks
+	for k in range(length):
+		var x = start_x + k
+		var block_pos = Vector2(x * grid_size, y * grid_size)
+		
+		# Visual Block (Mario Style)
+		var visual_rect = ColorRect.new()
+		visual_rect.size = Vector2(grid_size - 1, grid_size - 1) # 1px Gap
+		visual_rect.position = block_pos
+		visual_rect.color = Color("#8B4513") # Brick Brown
+		
+		# Inner bevel for 3D look
+		var inner = ColorRect.new()
+		inner.size = Vector2(grid_size - 8, grid_size - 8)
+		inner.position = Vector2(4, 4)
+		inner.color = Color("#A0522D") # Lighter Brown
+		visual_rect.add_child(inner)
+		
+		# Studs (Block pattern)
+		for stud_i in range(2):
+			for stud_j in range(2):
+				var stud = ColorRect.new()
+				stud.size = Vector2(4, 4)
+				stud.color = Color.BLACK
+				stud.position = Vector2(16 + stud_i * 32, 16 + stud_j * 32)
+				inner.add_child(stud)
+				
+		vis_layer.add_child(visual_rect)
+	
+	# Physical Body (One collider for smoothness)
+	var static_body = StaticBody2D.new()
+	static_body.position = Vector2(start_x * grid_size + (length * grid_size) / 2.0, y * grid_size + grid_size / 2.0)
+	
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(length * grid_size, grid_size)
 	
 	var col = CollisionShape2D.new()
-	var shape = RectangleShape2D.new()
-	shape.size = Vector2(cell_size, cell_size)
 	col.shape = shape
-	body.add_child(col)
+	static_body.add_child(col)
+	phys_layer.add_child(static_body)
+
+func _create_obstacle(vis_layer, phys_layer, x, y):
+	var pos = Vector2(x * grid_size, y * grid_size)
 	
 	var visual = ColorRect.new()
-	visual.position = Vector2(-cell_size/2, -cell_size/2)
-	visual.size = Vector2(cell_size, cell_size)
-	visual.color = color
-	body.add_child(visual)
+	visual.size = Vector2(grid_size, grid_size)
+	visual.position = pos
+	visual.color = Color.RED
+	vis_layer.add_child(visual)
+	
+	# Area2D for danger
+	# For now, treat as blockade
+	var static_body = StaticBody2D.new()
+	static_body.position = pos + Vector2(grid_size/2.0, grid_size/2.0)
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(grid_size, grid_size)
+	var col = CollisionShape2D.new()
+	col.shape = shape
+	static_body.add_child(col)
+	phys_layer.add_child(static_body)
+
+func _create_goal(vis_layer, phys_layer, x, y):
+	var visual = ColorRect.new()
+	visual.size = Vector2(grid_size, grid_size * 2)
+	visual.position = Vector2(x, y - grid_size)
+	visual.color = Color.GOLD
+	vis_layer.add_child(visual)

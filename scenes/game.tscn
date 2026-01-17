@@ -26,6 +26,33 @@ position_smoothing_enabled = true
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
+[node name="MinimapContainer" type="Panel" parent="CanvasLayer"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 220.0
+grow_horizontal = 0
+
+[node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer/MinimapContainer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="SubViewport" type="SubViewport" parent="CanvasLayer/MinimapContainer/SubViewportContainer"]
+handle_input_locally = false
+size = Vector2i(200, 200)
+render_target_update_mode = 4
+
+[node name="Camera2D" type="Camera2D" parent="CanvasLayer/MinimapContainer/SubViewportContainer/SubViewport"]
+zoom = Vector2(0.2, 0.2)
+
 [node name="PromptInputUI" type="Control" parent="CanvasLayer"]
 layout_mode = 3
 anchors_preset = 15
