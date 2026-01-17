@@ -97,27 +97,40 @@ func _on_llm_response(response: String):
 	
 	print("[GameController] AI Raw Response: ", response)
 	
-	# Parse response
-	var cmd = "STOP"
-	var lower_res = response.to_lower()
+	# Clean response
+	response = response.replace("\n", "").replace(".", "").strip_edges()
 	
+	# Split by commas for sequence
+	var commands = response.split(",")
+	
+	for raw_cmd in commands:
+		var cmd = _parse_command(raw_cmd)
+		print("[GameController] Executing Step: ", cmd)
+		
+		# Reset jump trigger for new command step
+		player.set_command(cmd)
+		player.jump_triggered = false 
+		
+		# Duration per step: 1.0s (Wait less time for smoother "Walk then Jump")
+		# If user said "Walk, Jump", we walk for 1s, then jump.
+		await get_tree().create_timer(1.0).timeout
+	
+	_finish_action()
+
+func _parse_command(raw_cmd: String) -> String:
+	var lower_res = raw_cmd.to_lower()
+	var cmd = "STOP"
 	if "jump_right" in lower_res or ("jump" in lower_res and "right" in lower_res):
 		cmd = "JUMP_RIGHT"
+	elif "jump_left" in lower_res:
+		cmd = "JUMP_LEFT"
 	elif "jump" in lower_res:
 		cmd = "JUMP"
 	elif "left" in lower_res:
 		cmd = "LEFT"
-	elif "right" in lower_res: # Check right last to avoid overriding jump_right
+	elif "right" in lower_res:
 		cmd = "RIGHT"
-	
-	print("[GameController] Executing Command: ", cmd)
-	player.set_command(cmd)
-	
-	# Let the action run for a fixed duration (e.g. 2 seconds for 'Walk 2 steps')
-	# Then STOP and return to input
-	await get_tree().create_timer(2.0).timeout
-	
-	_finish_action()
+	return cmd
 
 func _finish_action():
 	print("[GameController] Action Finished. Stopping.")

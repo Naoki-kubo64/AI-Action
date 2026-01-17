@@ -31,7 +31,7 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 	var headers = ["Content-Type: application/json"]
 	
 	var system_prompt = profile.get_combined_system_prompt(is_pro)
-	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output ONLY a single command from [RIGHT, LEFT, JUMP, JUMP_RIGHT, STOP]. Do not add any explanation."
+	var full_prompt = system_prompt + "\n\n" + input + "\n\nIMPORTANT: Output a list of commands separated by commas. Example: 'RIGHT, JUMP_RIGHT, RIGHT'. Available commands: [RIGHT, LEFT, JUMP, JUMP_RIGHT, STOP, JUMP_LEFT]. 'RIGHT' means Walk Right. Do not add any explanation."
 	
 	print("[LLMService] Sending Prompt:\n", full_prompt)
 	

@@ -7,6 +7,7 @@ class_name PlayerController
 
 # AI Commands
 var current_command: String = ""
+var jump_triggered: bool = false # To prevent bunny hopping in one command
 
 func _ready():
 	_setup_visuals()
@@ -26,32 +27,30 @@ func _physics_process(delta):
 		$Visuals.scale.x = sign(velocity.x)
 
 func set_command(cmd: String):
-	current_command = cmd
+	if current_command != cmd:
+		current_command = cmd
+		jump_triggered = false # Reset jump flag on new command logic? 
+		# Or should reset only when explicitly setting a new instruction sequence?
+		# For this prototype, we assume set_command comes from a queued sequence.
 
 func _process_command():
-	# Reset horizontal velocity (AI controls it step by step, or continuous)
-	# For this prototype: executed command persists for the frame or until changed
-	
 	# Default friction
 	velocity.x = move_toward(velocity.x, 0, move_speed)
 	
-	if current_command == "RIGHT":
+	# Parse
+	var cmd_upper = current_command.to_upper()
+	
+	if "RIGHT" in cmd_upper:
 		velocity.x = move_speed
-	elif current_command == "LEFT":
+	elif "LEFT" in cmd_upper:
 		velocity.x = -move_speed
-	elif current_command == "JUMP":
-		if is_on_floor():
-			velocity.y = jump_force
-		# After jump, keep moving forward if needed, or just jump vertical
-		# Ideally AI says "JUMP_RIGHT"
-		
-	elif current_command == "JUMP_RIGHT":
-		if is_on_floor():
-			velocity.y = jump_force
-		velocity.x = move_speed
-		
-	elif current_command == "STOP":
+	elif "STOP" in cmd_upper:
 		velocity.x = 0
+		
+	if "JUMP" in cmd_upper:
+		if is_on_floor() and not jump_triggered:
+			velocity.y = jump_force
+			jump_triggered = true # Lock jump until reset
 
 func _setup_visuals():
 	if has_node("Visuals"): return
