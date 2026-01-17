@@ -154,66 +154,33 @@ func _reset_game():
 	var level_path = LevelManager.get_current_level_path()
 	_log("[Game] Loading Level: " + level_path)
 	
-	# FORCE MANUAL FOR 1-1 to bypass loading issues
-	if "1-1" in level_path:
-		_log("[Game] FORCING MANUAL LEVEL 1-1 CONSTRUCTION.")
-		_construct_manual_level_1_1($LevelRoot)
-		start_pos = Vector2(96, 400)
-		player.position = start_pos
-		player.velocity = Vector2.ZERO
-		player.execute_action(command_db["STOP"])
-		
-		# Reset Camera logic
-		camera.position_smoothing_enabled = false
-		camera.align()
-		await get_tree().process_frame
-		camera.position_smoothing_enabled = true
-		_enter_preview_mode()
-		return
-
-	if not ResourceLoader.exists(level_path):
-		_log("[Game] ERROR: File not found! Checking Fallback...")
-		if "1-1" in level_path:
-			_log("[Game] Constructing MANUAL Level 1-1 (Fallback).")
-			_construct_manual_level_1_1($LevelRoot)
+	# FORCE MANUAL CONSTRUCTION for World 1 levels
+	if "Level_1-" in level_path:
+		var constructed = _construct_world_1_level(level_path, $LevelRoot)
+		if constructed:
 			start_pos = Vector2(96, 400)
-		else:
-			_log("[Game] Using Random Generator.")
-			var level_gen = $LevelGenerator
-			start_pos = level_gen.generate_level($LevelRoot)
-	else:
-		_log("[Game] File found. Loading...")
-		var level_scene = load(level_path)
-		if level_scene:
-			var level_instance = level_scene.instantiate()
-			$LevelRoot.add_child(level_instance)
-			_log("[Game] Level Instantiated Successfully.")
+			player.position = start_pos
+			player.velocity = Vector2.ZERO
+			player.execute_action(command_db["STOP"])
 			
-			# Find start pos
-			var start_node = level_instance.get_node_or_null("PlayerStart")
-			if start_node:
-				start_pos = start_node.position
-			else:
-				start_pos = Vector2(100, 100) # Default
-		else:
-			_log("[Game] CRITICAL: Load failed (null). Checking Fallback...")
-			
-			if "1-1" in level_path:
-				_log("[Game] Constructing MANUAL Level 1-1 (Fallback).")
-				_construct_manual_level_1_1($LevelRoot)
-				start_pos = Vector2(96, 400)
-			else:
-				_log("[Game] Using Random Generator.")
-				var level_gen = $LevelGenerator
-				start_pos = level_gen.generate_level($LevelRoot)
+			camera.position_smoothing_enabled = false
+			camera.align()
+			await get_tree().process_frame
+			camera.position_smoothing_enabled = true
+			_enter_preview_mode()
+			return
+
+	# Fallback: Random Generator for other worlds
+	_log("[Game] Using Random Generator for non-World-1 level.")
+	var level_gen = $LevelGenerator
+	start_pos = level_gen.generate_level($LevelRoot)
 	
 	player.position = start_pos
 	player.velocity = Vector2.ZERO
 	player.execute_action(command_db["STOP"])
 	
-	# Reset Camera Smoothing immediately to prevent lag
 	camera.position_smoothing_enabled = false
-	camera.align() # Force update
+	camera.align()
 	await get_tree().process_frame
 	camera.position_smoothing_enabled = true
 	
@@ -476,3 +443,164 @@ func _construct_manual_level_1_1(parent: Node2D):
 	
 	parent.add_child(goal)
 	_log("[Game] Manual Level 1-1 Constructed Successfully!")
+
+# World 1 Level Dispatcher
+func _construct_world_1_level(level_path: String, parent: Node2D) -> bool:
+	if "1-1" in level_path:
+		_log("[Game] Constructing Level 1-1 (Tutorial: Stairs)")
+		_construct_manual_level_1_1(parent)
+		return true
+	elif "1-2" in level_path:
+		_log("[Game] Constructing Level 1-2 (Gaps)")
+		_construct_manual_level_1_2(parent)
+		return true
+	elif "1-3" in level_path:
+		_log("[Game] Constructing Level 1-3 (Walls)")
+		_construct_manual_level_1_3(parent)
+		return true
+	elif "1-4" in level_path:
+		_log("[Game] Constructing Level 1-4 (Enemies)")
+		_construct_manual_level_1_4(parent)
+		return true
+	else:
+		_log("[Game] Unknown World 1 level: " + level_path)
+		return false
+
+# --- SHARED HELPER ---
+func _create_block(x_idx: int, y_idx: int) -> StaticBody2D:
+	var block = StaticBody2D.new()
+	block.position = Vector2(x_idx * 64, y_idx * 64)
+	
+	var col = CollisionShape2D.new()
+	col.position = Vector2(32, 32)
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(64, 64)
+	col.shape = shape
+	block.add_child(col)
+	
+	var rect = ColorRect.new()
+	rect.size = Vector2(64, 64)
+	rect.color = Color(0.55, 0.27, 0.07)
+	block.add_child(rect)
+	
+	var inner = ColorRect.new()
+	inner.size = Vector2(56, 56)
+	inner.position = Vector2(4, 4)
+	inner.color = Color(0.65, 0.35, 0.15)
+	rect.add_child(inner)
+	
+	return block
+
+func _create_goal(x_idx: int, y_idx: int) -> Area2D:
+	var goal = Area2D.new()
+	goal.name = "GoalArea"
+	goal.add_to_group("goal")
+	goal.position = Vector2(x_idx * 64 + 32, y_idx * 64 + 32)
+	
+	var col = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(64, 64)
+	col.shape = shape
+	goal.add_child(col)
+	
+	var viz = ColorRect.new()
+	viz.size = Vector2(64, 64)
+	viz.position = Vector2(-32, -32)
+	viz.color = Color(1, 0.84, 0, 0.7)
+	goal.add_child(viz)
+	
+	return goal
+
+# --- LEVEL 1-2: GAPS ---
+func _construct_manual_level_1_2(parent: Node2D):
+	var floor_node = Node2D.new()
+	floor_node.name = "Floor"
+	parent.add_child(floor_node)
+	
+	# Start Platform (0-2)
+	for i in range(3):
+		floor_node.add_child(_create_block(i, 8))
+	
+	# Gap (3-4)
+	
+	# Middle Platform (5-7)
+	for i in range(5, 8):
+		floor_node.add_child(_create_block(i, 8))
+	
+	# Bigger Gap (8-10)
+	
+	# End Platform (11-14)
+	for i in range(11, 15):
+		floor_node.add_child(_create_block(i, 8))
+	
+	parent.add_child(_create_goal(14, 7))
+	_log("[Game] Level 1-2 Constructed!")
+
+# --- LEVEL 1-3: WALLS ---
+func _construct_manual_level_1_3(parent: Node2D):
+	var floor_node = Node2D.new()
+	floor_node.name = "Floor"
+	parent.add_child(floor_node)
+	
+	# Start (0-1)
+	for i in range(2):
+		floor_node.add_child(_create_block(i, 8))
+	
+	# Wall 1 (x=2, height 2)
+	floor_node.add_child(_create_block(2, 8))
+	floor_node.add_child(_create_block(2, 7))
+	
+	# Platform (3-4)
+	for i in range(3, 5):
+		floor_node.add_child(_create_block(i, 8))
+	
+	# Wall 2 (x=5, height 3)
+	floor_node.add_child(_create_block(5, 8))
+	floor_node.add_child(_create_block(5, 7))
+	floor_node.add_child(_create_block(5, 6))
+	
+	# End Platform (6-9)
+	for i in range(6, 10):
+		floor_node.add_child(_create_block(i, 8))
+	
+	parent.add_child(_create_goal(9, 7))
+	_log("[Game] Level 1-3 Constructed!")
+
+# --- LEVEL 1-4: ENEMIES ---
+func _construct_manual_level_1_4(parent: Node2D):
+	var floor_node = Node2D.new()
+	floor_node.name = "Floor"
+	parent.add_child(floor_node)
+	
+	# Full flat floor (0-12)
+	for i in range(13):
+		floor_node.add_child(_create_block(i, 8))
+	
+	# Add Enemies (simple red hazard blocks for now)
+	var enemy1 = _create_enemy(4, 7)
+	var enemy2 = _create_enemy(8, 7)
+	floor_node.add_child(enemy1)
+	floor_node.add_child(enemy2)
+	
+	parent.add_child(_create_goal(12, 7))
+	_log("[Game] Level 1-4 Constructed!")
+
+func _create_enemy(x_idx: int, y_idx: int) -> Area2D:
+	var enemy = Area2D.new()
+	enemy.name = "Enemy"
+	enemy.add_to_group("hazard")
+	enemy.position = Vector2(x_idx * 64 + 32, y_idx * 64 + 32)
+	
+	var col = CollisionShape2D.new()
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(48, 48)
+	col.shape = shape
+	enemy.add_child(col)
+	
+	var viz = ColorRect.new()
+	viz.size = Vector2(48, 48)
+	viz.position = Vector2(-24, -24)
+	viz.color = Color(0.8, 0.2, 0.2, 1.0)
+	enemy.add_child(viz)
+	
+	return enemy
