@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://block001"]
+[gd_scene load_steps=0 format=3 uid="uid://block001"]
 
 [node name="Block" type="StaticBody2D"]
 

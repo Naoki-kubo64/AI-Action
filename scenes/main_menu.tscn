@@ -71,10 +71,40 @@ size = Vector2i(400, 100)
 ok_button_text = "DELETE MEMORY"
 dialog_text = "Are you sure? I will forget everything we learned together..."
 
+[node name="DebugPanel" type="PanelContainer" parent="CenterContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="HBox" type="HBoxContainer" parent="CenterContainer/VBoxContainer/DebugPanel"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="CenterContainer/VBoxContainer/DebugPanel/HBox"]
+layout_mode = 2
+text = "Debug:"
+
+[node name="WorldSpin" type="SpinBox" parent="CenterContainer/VBoxContainer/DebugPanel/HBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 5.0
+value = 1.0
+prefix = "W-"
+
+[node name="StageSpin" type="SpinBox" parent="CenterContainer/VBoxContainer/DebugPanel/HBox"]
+layout_mode = 2
+min_value = 1.0
+max_value = 7.0
+value = 1.0
+prefix = "S-"
+
+[node name="DebugStart" type="Button" parent="CenterContainer/VBoxContainer/DebugPanel/HBox"]
+layout_mode = 2
+text = "GO"
+
+
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeO" to="." method="_on_char_button_pressed" binds= [0]]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeG" to="." method="_on_char_button_pressed" binds= [1]]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/HBoxContainer/BtnTypeC" to="." method="_on_char_button_pressed" binds= [2]]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/StartStandard" to="." method="_on_start_standard_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/StartPro" to="." method="_on_start_pro_pressed"]
 [connection signal="pressed" from="CenterContainer/VBoxContainer/ResetMemory" to="." method="_on_reset_memory_pressed"]
+[connection signal="pressed" from="CenterContainer/VBoxContainer/DebugPanel/HBox/DebugStart" to="." method="_on_debug_start_pressed"]
 [connection signal="confirmed" from="ConfirmationDialog" to="." method="_on_reset_confirmed"]

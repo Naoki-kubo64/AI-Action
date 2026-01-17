@@ -129,6 +129,10 @@ func _reset_game():
 	print("[GameController] Resetting Game...")
 	turn_count = 0
 	
+	# Update HUD
+	if has_node("CanvasLayer/LevelHUD"):
+		$CanvasLayer/LevelHUD.text = "LEVEL %d-%d" % [LevelManager.current_world, LevelManager.current_stage]
+	
 	# Clear old level
 	for child in $LevelRoot.get_children():
 		child.queue_free()

@@ -36,6 +36,14 @@ offset_right = -20.0
 offset_bottom = 220.0
 grow_horizontal = 0
 
+[node name="LevelHUD" type="Label" parent="CanvasLayer"]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 32
+text = "Level 1-1"
+
 [node name="SubViewportContainer" type="SubViewportContainer" parent="CanvasLayer/MinimapContainer"]
 layout_mode = 1
 anchors_preset = 15

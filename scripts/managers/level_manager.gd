@@ -23,14 +23,18 @@ func load_level(world: int, stage: int):
 	load_current_level()
 
 func load_current_level():
-	var path = get_current_level_path()
-	if ResourceLoader.exists(path):
-		get_tree().change_scene_to_file(path)
+	# In our new architecture, LevelManager just holds the state (current_world/stage).
+	# The actual loading happens when the Game Scene resets.
+	# So here we should strictly change to the Game Scene if we aren't already there,
+	# OR if we are there, trigger a reset.
+	var current_scene = get_tree().current_scene
+	if current_scene and current_scene.name == "GameScene":
+		# We are already in game, just reset it to load new level
+		if current_scene.has_method("_reset_game"):
+			current_scene._reset_game()
 	else:
-		print("[LevelManager] Level not found: ", path)
-		# Fallback: Just reload main menu or stay?
-		# specific logic for "Level not found" -> Maybe generated?
-		# For now, just print error.
+		# We are in menu, go to game
+		get_tree().change_scene_to_file("res://scenes/game.tscn")
 
 func reload_current_level():
 	load_current_level()

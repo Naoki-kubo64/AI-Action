@@ -44,3 +44,16 @@ func _on_reset_memory_pressed():
 
 func _on_reset_confirmed():
 	MemoryManager.reset_memory()
+
+func _on_debug_start_pressed():
+	if selected_index == -1: return
+	
+	var w = $CenterContainer/VBoxContainer/DebugPanel/HBox/WorldSpin.value
+	var s = $CenterContainer/VBoxContainer/DebugPanel/HBox/StageSpin.value
+	
+	# Set Level
+	LevelManager.current_world = int(w)
+	LevelManager.current_stage = int(s)
+	
+	# Start
+	GameManager.start_game(characters[selected_index], false)
