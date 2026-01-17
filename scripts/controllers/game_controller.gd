@@ -6,7 +6,7 @@ class_name GameController
 @onready var prompt_ui = $CanvasLayer/PromptInputUI
 @onready var camera = $Player/Camera2D
 
-enum State { PREVIEW, INPUT, ACTION }
+enum State {PREVIEW, INPUT, ACTION}
 var current_state = State.PREVIEW
 
 var turn_count: int = 0
@@ -23,61 +23,61 @@ var command_db = {
 	"SHORT_WAIT": {"speed": 0.0, "jump": 0.0, "duration": 0.5},
 	
 	"CREEP_RIGHT": {"speed": 0.3, "jump": 0.0, "duration": 0.4},
-	"STEP_RIGHT":  {"speed": 0.5, "jump": 0.0, "duration": 0.5},
-	"WALK_RIGHT":  {"speed": 1.0, "jump": 0.0, "duration": 0.8},
-	"RUN_RIGHT":   {"speed": 1.5, "jump": 0.0, "duration": 1.2},
-	"SPRINT_RIGHT":{"speed": 2.0, "jump": 0.0, "duration": 1.5},
-	"BACK_STEP":   {"speed": -0.5, "jump": 0.0, "duration": 0.3}, # Usually moves left if facing right, simplifies to negative speed
+	"STEP_RIGHT": {"speed": 0.5, "jump": 0.0, "duration": 0.5},
+	"WALK_RIGHT": {"speed": 1.0, "jump": 0.0, "duration": 0.8},
+	"RUN_RIGHT": {"speed": 1.5, "jump": 0.0, "duration": 1.2},
+	"SPRINT_RIGHT": {"speed": 2.0, "jump": 0.0, "duration": 1.5},
+	"BACK_STEP": {"speed": - 0.5, "jump": 0.0, "duration": 0.3}, # Usually moves left if facing right, simplifies to negative speed
 	
-	"CREEP_LEFT":  {"speed": -0.3, "jump": 0.0, "duration": 0.4},
-	"STEP_LEFT":   {"speed": -0.5, "jump": 0.0, "duration": 0.5},
-	"WALK_LEFT":   {"speed": -1.0, "jump": 0.0, "duration": 0.8},
-	"RUN_LEFT":    {"speed": -1.5, "jump": 0.0, "duration": 1.2},
-	"SPRINT_LEFT": {"speed": -2.0, "jump": 0.0, "duration": 1.5},
+	"CREEP_LEFT": {"speed": - 0.3, "jump": 0.0, "duration": 0.4},
+	"STEP_LEFT": {"speed": - 0.5, "jump": 0.0, "duration": 0.5},
+	"WALK_LEFT": {"speed": - 1.0, "jump": 0.0, "duration": 0.8},
+	"RUN_LEFT": {"speed": - 1.5, "jump": 0.0, "duration": 1.2},
+	"SPRINT_LEFT": {"speed": - 2.0, "jump": 0.0, "duration": 1.5},
 	
 	# Vertical Jumps
-	"HOP":         {"speed": 0.0, "jump": 0.5, "duration": 0.6},
-	"JUMP":        {"speed": 0.0, "jump": 1.0, "duration": 0.8},
-	"HIGH_JUMP":   {"speed": 0.0, "jump": 1.3, "duration": 1.0},
-	"SUPER_JUMP":  {"speed": 0.0, "jump": 1.6, "duration": 1.2},
+	"HOP": {"speed": 0.0, "jump": 0.5, "duration": 0.6},
+	"JUMP": {"speed": 0.0, "jump": 1.0, "duration": 0.8},
+	"HIGH_JUMP": {"speed": 0.0, "jump": 1.3, "duration": 1.0},
+	"SUPER_JUMP": {"speed": 0.0, "jump": 1.6, "duration": 1.2},
 	
 	# Directional Jumps (Right)
-	"HOP_RIGHT":        {"speed": 0.5, "jump": 0.5, "duration": 0.5},
-	"JUMP_RIGHT":       {"speed": 1.0, "jump": 1.0, "duration": 1.0},
-	"LONG_JUMP_RIGHT":  {"speed": 1.5, "jump": 1.0, "duration": 1.2},
-	"HIGH_JUMP_RIGHT":  {"speed": 0.5, "jump": 1.4, "duration": 1.2},
-	"DASH_JUMP_RIGHT":  {"speed": 2.0, "jump": 1.2, "duration": 1.5},
+	"HOP_RIGHT": {"speed": 0.5, "jump": 0.5, "duration": 0.5},
+	"JUMP_RIGHT": {"speed": 1.0, "jump": 1.0, "duration": 1.0},
+	"LONG_JUMP_RIGHT": {"speed": 1.5, "jump": 1.0, "duration": 1.2},
+	"HIGH_JUMP_RIGHT": {"speed": 0.5, "jump": 1.4, "duration": 1.2},
+	"DASH_JUMP_RIGHT": {"speed": 2.0, "jump": 1.2, "duration": 1.5},
 	
 	# Directional Jumps (Left)
-	"HOP_LEFT":        {"speed": -0.5, "jump": 0.5, "duration": 0.5},
-	"JUMP_LEFT":       {"speed": -1.0, "jump": 1.0, "duration": 1.0},
-	"LONG_JUMP_LEFT":  {"speed": -1.5, "jump": 1.0, "duration": 1.2},
-	"HIGH_JUMP_LEFT":  {"speed": -0.5, "jump": 1.4, "duration": 1.2},
-	"DASH_JUMP_LEFT":  {"speed": -2.0, "jump": 1.2, "duration": 1.5},
-	"SUPER_JUMP_LEFT": {"speed": -1.5, "jump": 1.6, "duration": 1.5},
+	"HOP_LEFT": {"speed": - 0.5, "jump": 0.5, "duration": 0.5},
+	"JUMP_LEFT": {"speed": - 1.0, "jump": 1.0, "duration": 1.0},
+	"LONG_JUMP_LEFT": {"speed": - 1.5, "jump": 1.0, "duration": 1.2},
+	"HIGH_JUMP_LEFT": {"speed": - 0.5, "jump": 1.4, "duration": 1.2},
+	"DASH_JUMP_LEFT": {"speed": - 2.0, "jump": 1.2, "duration": 1.5},
+	"SUPER_JUMP_LEFT": {"speed": - 1.5, "jump": 1.6, "duration": 1.5},
 	
 	"SUPER_JUMP_RIGHT": {"speed": 1.5, "jump": 1.6, "duration": 1.5},
 	
 	# Timing / Idle
-	"WAIT_SHORT":  {"speed": 0.0, "jump": 0.0, "duration": 0.5},
-	"WAIT_LONG":   {"speed": 0.0, "jump": 0.0, "duration": 2.0},
+	"WAIT_SHORT": {"speed": 0.0, "jump": 0.0, "duration": 0.5},
+	"WAIT_LONG": {"speed": 0.0, "jump": 0.0, "duration": 2.0},
 	"LOOK_AROUND": {"speed": 0.0, "jump": 0.0, "duration": 1.5, "special": "LOOK_AROUND"},
 	
 	# Technical (Physics)
-	"SLIDE_RIGHT":      {"speed": 1.8, "jump": 0.0, "duration": 0.8, "special": "SLIDE"},
-	"SLIDE_LEFT":       {"speed": -1.8, "jump": 0.0, "duration": 0.8, "special": "SLIDE"},
-	"WALL_KICK_RIGHT":  {"speed": 1.2, "jump": 1.2, "duration": 0.6, "special": "WALL_KICK"},
-	"WALL_KICK_LEFT":   {"speed": -1.2, "jump": 1.2, "duration": 0.6, "special": "WALL_KICK"},
-	"AIR_BRAKE":        {"speed": 0.0, "jump": 0.0, "duration": 0.5, "special": "AIR_BRAKE"},
+	"SLIDE_RIGHT": {"speed": 1.8, "jump": 0.0, "duration": 0.8, "special": "SLIDE"},
+	"SLIDE_LEFT": {"speed": - 1.8, "jump": 0.0, "duration": 0.8, "special": "SLIDE"},
+	"WALL_KICK_RIGHT": {"speed": 1.2, "jump": 1.2, "duration": 0.6, "special": "WALL_KICK"},
+	"WALL_KICK_LEFT": {"speed": - 1.2, "jump": 1.2, "duration": 0.6, "special": "WALL_KICK"},
+	"AIR_BRAKE": {"speed": 0.0, "jump": 0.0, "duration": 0.5, "special": "AIR_BRAKE"},
 	
 	# Failure / Noise
-	"STUMBLE":          {"speed": 0.2, "jump": 0.0, "duration": 1.5, "special": "STUMBLE"},
-	"OVERSHOOT_RIGHT":  {"speed": 1.5, "jump": 0.0, "duration": 2.5}, # Runs too long
-	"OVERSHOOT_LEFT":   {"speed": -1.5, "jump": 0.0, "duration": 2.5},
+	"STUMBLE": {"speed": 0.2, "jump": 0.0, "duration": 1.5, "special": "STUMBLE"},
+	"OVERSHOOT_RIGHT": {"speed": 1.5, "jump": 0.0, "duration": 2.5}, # Runs too long
+	"OVERSHOOT_LEFT": {"speed": - 1.5, "jump": 0.0, "duration": 2.5},
 	
 	# Interaction (Mock)
-	"INTERACT":         {"speed": 0.0, "jump": 0.0, "duration": 1.0, "special": "INTERACT"},
-	"PUSH":             {"speed": 0.2, "jump": 0.0, "duration": 2.0, "special": "PUSH"},
+	"INTERACT": {"speed": 0.0, "jump": 0.0, "duration": 1.0, "special": "INTERACT"},
+	"PUSH": {"speed": 0.2, "jump": 0.0, "duration": 2.0, "special": "PUSH"},
 	
 	# Special Emotes
 	"DANCE": {"speed": 0.0, "jump": 0.0, "duration": 1.5, "special": "DANCE"},
@@ -107,7 +107,7 @@ func _ready():
 	_setup_minimap()
 
 func _on_player_hit_hazard():
-	if current_state != State.PREVIEW and current_state != State.INPUT: 
+	if current_state != State.PREVIEW and current_state != State.INPUT:
 		trigger_shake(20.0) # Shake screen
 		game_over("Hit Hazard")
 
@@ -129,19 +129,29 @@ func _reset_game():
 	print("[GameController] Resetting Game...")
 	turn_count = 0
 	
-	# Regenerate Level for fresh experience
-	var level_gen = $LevelGenerator
-	
-	# Clear old level manually first to ensure cleanup
+	# Clear old level
 	for child in $LevelRoot.get_children():
 		child.queue_free()
 	
-	# Wait for physics frame to process deletions
-	await get_tree().physics_frame
 	await get_tree().physics_frame
 	
-	# Generate new
-	start_pos = level_gen.generate_level($LevelRoot)
+	# Load Level from Manager
+	var level_path = LevelManager.get_current_level_path()
+	if not ResourceLoader.exists(level_path):
+		print("[GameController] Level file not found: ", level_path, ". Using Generator Fallback.")
+		var level_gen = $LevelGenerator
+		start_pos = level_gen.generate_level($LevelRoot)
+	else:
+		var level_scene = load(level_path)
+		var level_instance = level_scene.instantiate()
+		$LevelRoot.add_child(level_instance)
+		
+		# Find start pos
+		var start_node = level_instance.get_node_or_null("PlayerStart")
+		if start_node:
+			start_pos = start_node.position
+		else:
+			start_pos = Vector2(100, 100) # Default
 	
 	player.position = start_pos
 	player.velocity = Vector2.ZERO
@@ -163,7 +173,7 @@ func _setup_minimap():
 		if mini_cam:
 			var remote = RemoteTransform2D.new()
 			remote.remote_path = mini_cam.get_path()
-			player.add_child(remote)
+			player.add_child(remote )
 
 func _enter_preview_mode():
 	current_state = State.PREVIEW
@@ -175,9 +185,10 @@ func _enter_preview_mode():
 
 func _enter_input_mode():
 	current_state = State.INPUT
-	var tween = create_tween()
+	var tween = create_tween().set_pause_mode(Tween.TWEEN_PAUSE_PROCESS) # Allow tween during pause
 	tween.tween_property(camera, "zoom", Vector2(1.5, 1.5), 0.5)
 	prompt_ui.visible = true
+	get_tree().paused = true # PAUSE GAME
 
 func _on_prompt_submitted(prompt: String, key: String):
 	if current_state != State.INPUT: return
@@ -186,6 +197,7 @@ func _on_prompt_submitted(prompt: String, key: String):
 	_enter_action_mode()
 
 func _enter_action_mode():
+	get_tree().paused = false # RESUME GAME
 	current_state = State.ACTION
 	prompt_ui.visible = false
 	
@@ -221,7 +233,7 @@ func trigger_shake(amount: float):
 	shake_strength = amount
 
 func _request_ai_action():
-	if GameManager.current_character == null: 
+	if GameManager.current_character == null:
 		_finish_action()
 		return
 	
@@ -230,8 +242,8 @@ func _request_ai_action():
 	
 	print("[GameController] Requesting AI Action... Prompt: ", user_prompt)
 	LLMService.request_action(
-		GameManager.current_character, 
-		GameManager.is_pro_mode, 
+		GameManager.current_character,
+		GameManager.is_pro_mode,
 		full_input
 	)
 

@@ -1,0 +1,64 @@
+[gd_scene load_steps=5 format=3 uid="uid://enemywalker123"]
+
+[ext_resource type="Script" path="res://scripts/entities/enemy_walker.gd" id="1_script"]
+
+[node name="EnemyWalker" type="CharacterBody2D" groups=["hazard"]]
+collision_layer = 4
+collision_mask = 3
+script = ExtResource("1_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Visuals" type="Node2D" parent="."]
+
+[node name="ColorRect" type="ColorRect" parent="Visuals"]
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+color = Color(0.8, 0.2, 0.2, 1)
+
+[node name="Eyes" type="Node2D" parent="Visuals"]
+
+[node name="EyeL" type="ColorRect" parent="Visuals/Eyes"]
+offset_left = -12.0
+offset_top = -10.0
+offset_right = -4.0
+offset_bottom = -2.0
+color = Color(0, 0, 0, 1)
+
+[node name="EyeR" type="ColorRect" parent="Visuals/Eyes"]
+offset_left = -2.0
+offset_top = -10.0
+offset_right = 6.0
+offset_bottom = -2.0
+color = Color(0, 0, 0, 1)
+
+[node name="StompArea" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StompArea"]
+position = Vector2(0, -22)
+shape = SubResource("RectangleShape2D_head")
+
+[node name="DamageArea" type="Area2D" parent="." groups=["hazard"]]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="DamageArea"]
+shape = SubResource("RectangleShape2D_damage")
+
+[node name="LedgeCheck" type="RayCast2D" parent="."]
+position = Vector2(-22, 0)
+target_position = Vector2(0, 30)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
+size = Vector2(36, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_damage"]
+size = Vector2(44, 20)
+
+[connection signal="area_entered" from="StompArea" to="." method="_on_stomp_area_entered"]
