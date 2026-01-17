@@ -222,32 +222,46 @@ func _on_llm_response(response: String):
 	if current_state != State.ACTION: return
 	print("[GameController] AI Raw Response: ", response)
 	
-	# Parse Sequence
-	response = response.replace("\n", "").replace(".", "").strip_edges()
-	var commands = response.split(",")
+	# Clean text if it contains markdown code blocks
+	response = response.replace("```json", "").replace("```", "").strip_edges()
 	
-	for raw_cmd in commands:
-		var cmd_str = raw_cmd.strip_edges().to_upper()
+	var actions = JSON.parse_string(response)
+	
+	if actions == null or not (actions is Array):
+		print("[GameController] Failed to parse JSON actions. Fallback to parsing basic list.")
+		# Fallback handling might be needed if AI fails to follow JSON instructions, 
+		# but for now lets rely on the prompt instructions.
+		_finish_action()
+		return
+	
+	for action_item in actions:
+		var cmd_str = action_item.get("action", "STOP").to_upper()
+		var override_duration = action_item.get("duration")
+		var strength_mod = action_item.get("strength", 1.0)
 		
-		# Allow simple fuzzy matching if needed, but strict is better for now
-		# If key not found, try to find substring
-		var action_data = command_db.get("STOP") # Default
-		
+		# Look up base stats
+		var action_data = command_db.get("STOP").duplicate() # Secure default
 		if command_db.has(cmd_str):
-			action_data = command_db[cmd_str]
-		else:
-			# Fallback: check if includes "RIGHT"
-			if "RIGHT" in cmd_str: action_data = command_db["WALK_RIGHT"]
-			elif "LEFT" in cmd_str: action_data = command_db["WALK_LEFT"]
-			elif "JUMP" in cmd_str: action_data = command_db["JUMP"]
+			action_data = command_db[cmd_str].duplicate()
+		elif "RIGHT" in cmd_str: action_data = command_db["WALK_RIGHT"].duplicate()
+		elif "LEFT" in cmd_str: action_data = command_db["WALK_LEFT"].duplicate()
 		
-		action_data["cmd"] = cmd_str # Pass name for debugging
-		print("[GameController] Executing: ", cmd_str)
+		# Apply Overrides
+		action_data["cmd"] = cmd_str
+		if override_duration != null:
+			action_data["duration"] = float(override_duration)
+		
+		# Merge Strength into Speed/Jump
+		# If strength is 0.5, speed becomes half of BASE speed of that command
+		action_data["speed"] = action_data.get("speed", 0.0) * float(strength_mod)
+		action_data["jump"] = action_data.get("jump", 0.0) * float(strength_mod)
+		action_data["strength"] = strength_mod
+		
+		print("[GameController] Executing: ", cmd_str, " | Strength: ", strength_mod, " | Dur: ", action_data["duration"])
 		
 		player.execute_action(action_data)
 		
-		var duration = action_data.get("duration", 1.0)
-		await get_tree().create_timer(duration).timeout
+		await get_tree().create_timer(action_data["duration"]).timeout
 	
 	_finish_action()
 
