@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://level1-4"]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="PackedScene" uid="uid://block001" path="res://scenes/block.tscn" id="1_block"]
 [ext_resource type="PackedScene" uid="uid://enemywalker123" path="res://scenes/entities/enemy_walker.tscn" id="2_enemy"]
@@ -10,7 +10,7 @@ position = Vector2(96, 400)
 
 [node name="Floor" type="Node2D" parent="."]
 
-# Start Platform
+# Safe Start
 [node name="Block" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(0, 512)
 [node name="Block2" parent="Floor" instance=ExtResource("1_block")]
@@ -18,30 +18,37 @@ position = Vector2(64, 512)
 [node name="Block3" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(128, 512)
 
-# Gap
+# Platform with Enemy 1 (Patrol)
 [node name="Block4" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(320, 512)
+position = Vector2(256, 512)
 [node name="Block5" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(384, 512)
+position = Vector2(320, 512)
 [node name="Block6" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(448, 512)
+position = Vector2(384, 512)
 
-# Enemy on Platform
-[node name="EnemyWalker" parent="." instance=ExtResource("2_enemy")]
-position = Vector2(384, 448)
+[node name="EnemyWalker" parent="Floor" instance=ExtResource("2_enemy")]
+position = Vector2(320, 448)
 
-# Another Gap & High Platform
+# Gap
+# High Platform with Enemy 2
 [node name="Block7" parent="Floor" instance=ExtResource("1_block")]
-position = Vector2(640, 448)
+position = Vector2(576, 448)
 [node name="Block8" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(640, 448)
+[node name="Block9" parent="Floor" instance=ExtResource("1_block")]
 position = Vector2(704, 448)
 
-# Enemy 2
-[node name="EnemyWalker2" parent="." instance=ExtResource("2_enemy")]
-position = Vector2(672, 384)
+[node name="EnemyWalker2" parent="Floor" instance=ExtResource("2_enemy")]
+position = Vector2(640, 384)
+
+# Goal Platform
+[node name="Block10" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(832, 512)
+[node name="Block11" parent="Floor" instance=ExtResource("1_block")]
+position = Vector2(896, 512)
 
 [node name="GoalArea" type="Area2D" parent="." groups=["goal"]]
-position = Vector2(800, 320)
+position = Vector2(896, 384)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoalArea"]
 shape = SubResource("RectangleShape2D_goal")

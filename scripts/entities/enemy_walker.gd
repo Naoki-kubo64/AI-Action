@@ -39,12 +39,6 @@ func _on_stomp_area_entered(area: Area2D):
 			parent.velocity.y = -400 # Bounce
 			print("Enemy Stomped!")
 
-func _on_body_entered(body):
-	if body.name == "Player":
-		# Damage logic
-		# Since Stomp is handled by Area, this body contact is likely side/bottom
-		# But wait, body_entered on CharacterBody2D isn't a signal unless using Area2D reporter
-		pass
 
 func die():
 	queue_free()
