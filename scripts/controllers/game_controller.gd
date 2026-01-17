@@ -93,11 +93,7 @@ func _ready():
 	LLMService.response_received.connect(_on_llm_response)
 	retry_dialog.retry_requested.connect(_on_retry_requested)
 	
-	var level_gen = $LevelGenerator
-	start_pos = level_gen.generate_level($LevelRoot)
-	player.position = start_pos
-	
-	# Connect Player Signals
+	# Connect Player Signals FIRST before reset_game
 	if not player.hit_hazard.is_connected(_on_player_hit_hazard):
 		player.hit_hazard.connect(_on_player_hit_hazard)
 	if not player.hit_goal.is_connected(_on_player_hit_goal):
@@ -105,8 +101,10 @@ func _ready():
 	if not player.debug_message.is_connected(_log):
 		player.debug_message.connect(_log)
 	
-	_enter_preview_mode()
 	_setup_minimap()
+	
+	# Call _reset_game to properly load level (including fixed levels)
+	_reset_game()
 
 func _on_player_hit_hazard():
 	if current_state != State.PREVIEW and current_state != State.INPUT:
@@ -156,6 +154,23 @@ func _reset_game():
 	var level_path = LevelManager.get_current_level_path()
 	_log("[Game] Loading Level: " + level_path)
 	
+	# FORCE MANUAL FOR 1-1 to bypass loading issues
+	if "1-1" in level_path:
+		_log("[Game] FORCING MANUAL LEVEL 1-1 CONSTRUCTION.")
+		_construct_manual_level_1_1($LevelRoot)
+		start_pos = Vector2(96, 400)
+		player.position = start_pos
+		player.velocity = Vector2.ZERO
+		player.execute_action(command_db["STOP"])
+		
+		# Reset Camera logic
+		camera.position_smoothing_enabled = false
+		camera.align()
+		await get_tree().process_frame
+		camera.position_smoothing_enabled = true
+		_enter_preview_mode()
+		return
+
 	if not ResourceLoader.exists(level_path):
 		_log("[Game] ERROR: File not found! Checking Fallback...")
 		if "1-1" in level_path:
