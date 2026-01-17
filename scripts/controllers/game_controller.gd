@@ -116,10 +116,21 @@ func _on_player_hit_goal():
 	print("Level Cleared!")
 	current_state = State.PREVIEW # Stop inputs
 	player.execute_action(command_db["STOP"])
-	retry_dialog.show_fail_dialog() # Use fail dialog for now but change text logic later?
-	# Ideally show a "Success" version. For now reusing retry but should update UI script to accept title?
-	# Let's just game_over with "CLEAR!" message for prototype
-	game_over("STAGE CLEAR!")
+	
+	# Show message (reuse RetryDialog for now or add a HUD message)
+	# For simplicity, using a visual feedback via Label or Print
+	if has_node("CanvasLayer/LevelHUD"):
+		$CanvasLayer/LevelHUD.text = "STAGE CLEAR!"
+		$CanvasLayer/LevelHUD.modulate = Color.GREEN
+	
+	# Play sound? (Todo)
+	
+	# Wait and Advance
+	await get_tree().create_timer(3.0).timeout
+	
+	LevelManager.next_level()
+	_reset_game()
+
 
 func _on_retry_requested(use_pro: bool):
 	GameManager.is_pro_mode = use_pro
