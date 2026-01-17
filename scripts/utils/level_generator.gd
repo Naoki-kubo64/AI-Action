@@ -34,7 +34,7 @@ func generate_level(root_node: Node2D) -> Vector2:
 	var segments_to_gen = level_length - safe_zone_start - safe_zone_end
 	
 	while segments_to_gen > 0:
-		var segment_type = rng.randi_range(0, 5) # Expanded types
+		var segment_type = rng.randi_range(0, 6) # Expanded types (0-6)
 		var length = rng.randi_range(2, 5)
 		if length > segments_to_gen: length = segments_to_gen
 		
@@ -59,6 +59,9 @@ func generate_level(root_node: Node2D) -> Vector2:
 			5: # Moving Platform (Gap + Island)
 				if length < 3: length = 3
 				_create_moving_platform(vis_layer, phys_layer, current_x, current_y, length)
+				current_x += length
+			6: # Crumbling Floor
+				_create_crumbling_platform(vis_layer, phys_layer, current_x, current_y, length)
 				current_x += length
 				
 		segments_to_gen -= length
@@ -191,3 +194,68 @@ func _ready():
 	tween.tween_property(self, 'position:y', position.y, 2.0).set_trans(Tween.TRANS_SINE)
 """
 	anim_body.set_script(script)
+
+func _create_crumbling_platform(vis_layer, phys_layer, start_x, start_y, length):
+	var x_pixel = start_x * grid_size
+	var y_pixel = start_y * grid_size
+	
+	var static_body = StaticBody2D.new()
+	static_body.position = Vector2(x_pixel, y_pixel)
+	
+	# Visuals + Collision
+	var shape = RectangleShape2D.new()
+	shape.size = Vector2(length * grid_size, grid_size)
+	var col = CollisionShape2D.new()
+	col.shape = shape
+	col.position = Vector2((length * grid_size)/2.0, grid_size/2.0)
+	static_body.add_child(col)
+	
+	var visual = ColorRect.new()
+	visual.size = Vector2(length * grid_size, grid_size)
+	visual.color = Color.SADDLE_BROWN # Brown for crumbling
+	static_body.add_child(visual)
+	
+	# Detection Area
+	var area = Area2D.new()
+	var area_shape = RectangleShape2D.new()
+	area_shape.size = Vector2(length * grid_size, 10) # Thin strip on top
+	var area_col = CollisionShape2D.new()
+	area_col.shape = area_shape
+	area_col.position = Vector2((length * grid_size)/2.0, -5)
+	area.add_child(area_col)
+	static_body.add_child(area)
+	
+	phys_layer.add_child(static_body)
+	
+	# Script for Crumble Logic
+	var script = GDScript.new()
+	script.source_code = """
+extends StaticBody2D
+
+@onready var visual = $ColorRect
+@onready var col = $CollisionShape2D
+@onready var area = $Area2D
+
+func _ready():
+	area.body_entered.connect(_on_body_entered)
+
+func _on_body_entered(body):
+	if body is CharacterBody2D:
+		# Trigger Crumble
+		call_deferred("_start_crumble")
+
+func _start_crumble():
+	# Flash warning
+	var tween = create_tween()
+	tween.tween_property(visual, "modulate", Color.RED, 0.5)
+	await tween.finished
+	
+	# Disable collision
+	col.disabled = true
+	
+	# Fall animation
+	var fall_tween = create_tween()
+	fall_tween.tween_property(self, "position:y", position.y + 500, 1.0).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	fall_tween.tween_callback(queue_free)
+"""
+	static_body.set_script(script)

@@ -115,7 +115,7 @@ func _on_gemini_request_completed(result, response_code, headers, body, http_req
 		# Print body for debugging 404s or 400s
 		print("[LLMService] Error Body: ", body.get_string_from_utf8())
 	
-	response_received.emit(text)
+	
 	http_request.queue_free()
 
 func request_summarization():

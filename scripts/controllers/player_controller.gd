@@ -16,6 +16,8 @@ var is_sliding: bool = false
 var special_timer: float = 0.0
 var active_special: String = ""
 var was_on_floor: bool = false
+var run_particles: CPUParticles2D
+var land_particles: CPUParticles2D
 
 func _ready():
 	_setup_visuals()
@@ -28,8 +30,17 @@ func _physics_process(delta):
 	# Landing / Jumping detection for Squash & Stretch
 	if is_on_floor() and not was_on_floor:
 		_animate_squash(Vector2(1.2, 0.8)) # Land = Squash
+		if land_particles: land_particles.restart()
 	
 	was_on_floor = is_on_floor()
+	
+	# Particle Logic (Run)
+	if run_particles:
+		if is_on_floor() and abs(velocity.x) > 50:
+			run_particles.emitting = true
+			run_particles.direction = Vector2(-sign(velocity.x), -0.5)
+		else:
+			run_particles.emitting = false
 
 	# Special Logic modifiers
 	var speed_multiplier = 1.0
@@ -189,25 +200,45 @@ func _setup_visuals():
 		col.shape = shape
 		add_child(col)
 	
-	# Interaction Hitbox
-	if not has_node("Hitbox"):
-		var area = Area2D.new()
-		area.name = "Hitbox"
-		
-		var shape = RectangleShape2D.new()
-		shape.size = Vector2(40, 48)
-		var col = CollisionShape2D.new()
-		col.shape = shape
-		area.add_child(col)
-		
-		add_child(area)
-		area.area_entered.connect(_on_area_entered)
+	# Particles Setup
+	# 1. Run Dust
+	if not has_node("RunParticles"):
+		var p = CPUParticles2D.new()
+		p.name = "RunParticles"
+		p.position = Vector2(0, 24) # Feet
+		p.emitting = false
+		p.amount = 8
+		p.lifetime = 0.4
+		p.direction = Vector2(-1, 0)
+		p.spread = 20.0
+		p.gravity = Vector2(0, -10)
+		p.initial_velocity_min = 30.0
+		p.initial_velocity_max = 60.0
+		p.scale_amount_min = 2.0
+		p.scale_amount_max = 5.0
+		p.color = Color(0.9, 0.9, 0.9, 0.5)
+		add_child(p)
+	
+	# 2. Land Dust
+	if not has_node("LandParticles"):
+		var p = CPUParticles2D.new()
+		p.name = "LandParticles"
+		p.position = Vector2(0, 24)
+		p.emitting = false
+		p.one_shot = true
+		p.explosiveness = 1.0
+		p.amount = 10
+		p.direction = Vector2(0, -1)
+		p.spread = 90.0
+		p.gravity = Vector2(0, 0)
+		p.initial_velocity_min = 20
+		p.initial_velocity_max = 50
+		p.scale_amount_min = 2.0
+		p.scale_amount_max = 4.0
+		p.color = Color(0.8, 0.8, 0.8, 0.6)
+		add_child(p)
 
-signal hit_hazard
-signal hit_goal
+	# 3. Reference
+	run_particles = get_node_or_null("RunParticles")
+	land_particles = get_node_or_null("LandParticles")
 
-func _on_area_entered(area: Area2D):
-	if area.is_in_group("hazard"):
-		hit_hazard.emit()
-	elif area.is_in_group("goal"):
-		hit_goal.emit()
