@@ -54,6 +54,9 @@ var command_db = {
 	"LONG_JUMP_LEFT":  {"speed": -1.5, "jump": 1.0, "duration": 1.2},
 	"HIGH_JUMP_LEFT":  {"speed": -0.5, "jump": 1.4, "duration": 1.2},
 	"DASH_JUMP_LEFT":  {"speed": -2.0, "jump": 1.2, "duration": 1.5},
+	"SUPER_JUMP_LEFT": {"speed": -1.5, "jump": 1.6, "duration": 1.5},
+	
+	"SUPER_JUMP_RIGHT": {"speed": 1.5, "jump": 1.6, "duration": 1.5},
 	
 	# Timing / Idle
 	"WAIT_SHORT":  {"speed": 0.0, "jump": 0.0, "duration": 0.5},

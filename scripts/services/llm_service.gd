@@ -38,14 +38,14 @@ func _call_gemini_api(api_key: String, profile: AICharacterProfile, is_pro: bool
 		prompt_instruction += "- strength: 0.0 to 1.0 (or higher). Multiplier for speed/jump force.\n"
 		prompt_instruction += "COMMAND LIST:\n"
 		prompt_instruction += "- Move: CREEP_RIGHT/LEFT, STEP_RIGHT/LEFT, WALK_RIGHT/LEFT, RUN_RIGHT/LEFT, SPRINT_RIGHT/LEFT, BACK_STEP\n"
-		prompt_instruction += "- Jump: HOP, JUMP, HIGH_JUMP, SUPER_JUMP\n"
-		prompt_instruction += "- Directional Jump: HOP_RIGHT/LEFT, JUMP_RIGHT/LEFT, LONG_JUMP_RIGHT/LEFT, DASH_JUMP_RIGHT/LEFT\n"
+		prompt_instruction += "- Jump (Vertical Only): HOP, JUMP, HIGH_JUMP, SUPER_JUMP. (WARNING: These stop horizontal movement!)\n"
+		prompt_instruction += "- Directional Jump: HOP_RIGHT/LEFT, JUMP_RIGHT/LEFT, LONG_JUMP_RIGHT/LEFT, DASH_JUMP_RIGHT/LEFT, SUPER_JUMP_RIGHT/LEFT\n"
 		prompt_instruction += "- Technical: SLIDE_RIGHT/LEFT, WALL_KICK_RIGHT/LEFT, AIR_BRAKE\n"
 		prompt_instruction += "- Timing: WAIT_SHORT, WAIT_LONG, LOOK_AROUND\n"
 		prompt_instruction += "- Failures: STUMBLE, OVERSHOOT_RIGHT/LEFT\n"
 		prompt_instruction += "- Interact: INTERACT, PUSH\n"
 		prompt_instruction += "- Emote: DANCE, PANIC\n"
-		prompt_instruction += "Example Response: [{\"action\": \"RUN_RIGHT\", \"duration\": 1.0, \"strength\": 0.8}, {\"action\": \"JUMP_RIGHT\", \"strength\": 1.2}]\n"
+		prompt_instruction += "Example Response: [{\"action\": \"RUN_RIGHT\", \"duration\": 1.0, \"strength\": 0.8}, {\"action\": \"SUPER_JUMP_RIGHT\", \"strength\": 1.0}]\n"
 		prompt_instruction += "Do NOT output markdown code blocks. Output raw JSON only."
 		
 		chat_history.append({
