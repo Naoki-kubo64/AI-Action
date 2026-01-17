@@ -161,15 +161,20 @@ func _reset_game():
 	else:
 		print("[GameController] Level found. Instantiating.")
 		var level_scene = load(level_path)
-		var level_instance = level_scene.instantiate()
-		$LevelRoot.add_child(level_instance)
-		
-		# Find start pos
-		var start_node = level_instance.get_node_or_null("PlayerStart")
-		if start_node:
-			start_pos = start_node.position
+		if level_scene:
+			var level_instance = level_scene.instantiate()
+			$LevelRoot.add_child(level_instance)
+			
+			# Find start pos
+			var start_node = level_instance.get_node_or_null("PlayerStart")
+			if start_node:
+				start_pos = start_node.position
+			else:
+				start_pos = Vector2(100, 100) # Default
 		else:
-			start_pos = Vector2(100, 100) # Default
+			print("[GameController] Failed to load level scene: ", level_path, ". Using Fallback.")
+			var level_gen = $LevelGenerator
+			start_pos = level_gen.generate_level($LevelRoot)
 	
 	player.position = start_pos
 	player.velocity = Vector2.ZERO
