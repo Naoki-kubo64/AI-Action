@@ -400,59 +400,79 @@ func _log(msg: String):
 		log_node.scroll_vertical = INF
 
 func _construct_manual_level_1_1(parent: Node2D):
-	var block_scene = load("res://scenes/block.tscn")
-	if not block_scene:
-		_log("[Game] ERROR: Block scene not found for manual construction.")
-		return
-
+	_log("[Game] Constructing Level 1-1 programmatically...")
+	
 	var floor_node = Node2D.new()
 	floor_node.name = "Floor"
 	parent.add_child(floor_node)
 	
-	# Helper to place block
-	var place = func(x_idx, y_idx):
-		var b = block_scene.instantiate()
-		b.position = Vector2(x_idx * 64, y_idx * 64)
-		floor_node.add_child(b)
+	# Helper to create a single block (StaticBody2D + CollisionShape2D + ColorRect)
+	var create_block = func(x_idx: int, y_idx: int) -> StaticBody2D:
+		var block = StaticBody2D.new()
+		block.position = Vector2(x_idx * 64, y_idx * 64)
+		
+		# Collision
+		var col = CollisionShape2D.new()
+		col.position = Vector2(32, 32)
+		var shape = RectangleShape2D.new()
+		shape.size = Vector2(64, 64)
+		col.shape = shape
+		block.add_child(col)
+		
+		# Visual (Brown brick)
+		var rect = ColorRect.new()
+		rect.size = Vector2(64, 64)
+		rect.color = Color(0.55, 0.27, 0.07) # Brown
+		block.add_child(rect)
+		
+		# Inner bevel
+		var inner = ColorRect.new()
+		inner.size = Vector2(56, 56)
+		inner.position = Vector2(4, 4)
+		inner.color = Color(0.65, 0.35, 0.15) # Lighter brown
+		rect.add_child(inner)
+		
+		return block
 	
 	# Flat Area (0 to 5)
-	for i in range(6): place.call(i, 8) # y=8 -> 512
+	for i in range(6):
+		floor_node.add_child(create_block.call(i, 8))
 	
 	# Stairs 1 (i=6)
-	place.call(6, 8)
+	floor_node.add_child(create_block.call(6, 8))
 	
 	# Stairs 2 (i=7)
-	place.call(7, 8)
-	place.call(7, 7) # y=7 -> 448
+	floor_node.add_child(create_block.call(7, 8))
+	floor_node.add_child(create_block.call(7, 7))
 	
 	# Stairs 3 (i=8)
-	place.call(8, 8)
-	place.call(8, 7)
-	place.call(8, 6) # y=6 -> 384
+	floor_node.add_child(create_block.call(8, 8))
+	floor_node.add_child(create_block.call(8, 7))
+	floor_node.add_child(create_block.call(8, 6))
 	
 	# Stairs 4 (i=9) - Top
-	place.call(9, 8)
-	place.call(9, 7)
-	place.call(9, 6)
-	place.call(9, 5) # y=5 -> 320
+	floor_node.add_child(create_block.call(9, 8))
+	floor_node.add_child(create_block.call(9, 7))
+	floor_node.add_child(create_block.call(9, 6))
+	floor_node.add_child(create_block.call(9, 5))
 	
-	# Goal Area
+	# Goal Area (on top of stack 4)
 	var goal = Area2D.new()
 	goal.name = "GoalArea"
 	goal.add_to_group("goal")
-	goal.position = Vector2(9 * 64, 4 * 64) # On top of stack 4
+	goal.position = Vector2(9 * 64 + 32, 4 * 64 + 32) # Centered
 	
-	var col = CollisionShape2D.new()
-	var shape = RectangleShape2D.new()
-	shape.size = Vector2(64, 64)
-	col.shape = shape
-	goal.add_child(col)
+	var goal_col = CollisionShape2D.new()
+	var goal_shape = RectangleShape2D.new()
+	goal_shape.size = Vector2(64, 64)
+	goal_col.shape = goal_shape
+	goal.add_child(goal_col)
 	
-	var viz = ColorRect.new()
-	viz.size = Vector2(64, 64)
-	viz.position = Vector2(-32, -32)
-	viz.color = Color(1, 0.84, 0, 0.5)
-	goal.add_child(viz)
+	var goal_viz = ColorRect.new()
+	goal_viz.size = Vector2(64, 64)
+	goal_viz.position = Vector2(-32, -32)
+	goal_viz.color = Color(1, 0.84, 0, 0.7) # Gold
+	goal.add_child(goal_viz)
 	
 	parent.add_child(goal)
-	_log("[Game] Manual Level 1-1 Constructed.")
+	_log("[Game] Manual Level 1-1 Constructed Successfully!")
