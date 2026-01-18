@@ -108,7 +108,7 @@ func _ready():
 
 func _on_player_hit_hazard():
 	if current_state != State.PREVIEW and current_state != State.INPUT:
-	trigger_shake(20.0) # Shake screen
+		trigger_shake(20.0) # Shake screen
 		game_over("Hit Hazard")
 
 var is_level_clearing: bool = false
