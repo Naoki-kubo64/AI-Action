@@ -108,28 +108,31 @@ func _ready():
 
 func _on_player_hit_hazard():
 	if current_state != State.PREVIEW and current_state != State.INPUT:
-		trigger_shake(20.0) # Shake screen
+	trigger_shake(20.0) # Shake screen
 		game_over("Hit Hazard")
 
+var is_level_clearing: bool = false
+
 func _on_player_hit_goal():
+	if is_level_clearing: return
+	is_level_clearing = true
+	
 	# Victory
 	print("Level Cleared!")
 	current_state = State.PREVIEW # Stop inputs
 	player.execute_action(command_db["STOP"])
 	
 	# Show message (reuse RetryDialog for now or add a HUD message)
-	# For simplicity, using a visual feedback via Label or Print
 	if has_node("CanvasLayer/LevelHUD"):
 		$CanvasLayer/LevelHUD.text = "STAGE CLEAR!"
 		$CanvasLayer/LevelHUD.modulate = Color.GREEN
-	
-	# Play sound? (Todo)
 	
 	# Wait and Advance
 	await get_tree().create_timer(3.0).timeout
 	
 	# next_level() calls load_current_level() which calls _reset_game() internally
 	LevelManager.next_level()
+	is_level_clearing = false
 
 
 func _on_retry_requested(use_pro: bool):
