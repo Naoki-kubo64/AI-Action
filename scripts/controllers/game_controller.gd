@@ -87,6 +87,10 @@ var command_db = {
 }
 
 func _ready():
+	# Ensure game is not paused when checking scene reload
+	get_tree().paused = false
+	Engine.time_scale = 1.0
+	
 	if GameManager.current_character:
 		print("[GameController] Initialized with ", GameManager.current_character.character_name)
 		player.modulate = GameManager.current_character.base_color
