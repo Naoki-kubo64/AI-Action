@@ -76,6 +76,14 @@ func _physics_process(delta):
 	
 	move_and_slide()
 	
+	# Interaction with RigidBodies (Pushing)
+	for i in get_slide_collision_count():
+		var c = get_slide_collision(i)
+		if c.get_collider() is RigidBody2D:
+			# Apply impulse proportional to move direction or generic push
+			# Simple push:
+			c.get_collider().apply_central_impulse(-c.get_normal() * 100.0)
+	
 	# Visuals Facing
 	if velocity.x != 0 and active_special != "LOOK_AROUND":
 		$Visuals.scale.x = sign(velocity.x)
