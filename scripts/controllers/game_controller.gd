@@ -590,22 +590,12 @@ func _construct_manual_level_1_4(parent: Node2D):
 	parent.add_child(_create_goal(12, 7))
 	_log("[Game] Level 1-4 Constructed!")
 
-func _create_enemy(x_idx: int, y_idx: int) -> Area2D:
-	var enemy = Area2D.new()
-	enemy.name = "Enemy"
-	enemy.add_to_group("hazard")
-	enemy.position = Vector2(x_idx * 64 + 32, y_idx * 64 + 32)
-	
-	var col = CollisionShape2D.new()
-	var shape = RectangleShape2D.new()
-	shape.size = Vector2(48, 48)
-	col.shape = shape
-	enemy.add_child(col)
-	
-	var viz = ColorRect.new()
-	viz.size = Vector2(48, 48)
-	viz.position = Vector2(-24, -24)
-	viz.color = Color(0.8, 0.2, 0.2, 1.0)
-	enemy.add_child(viz)
-	
-	return enemy
+func _create_enemy(x_idx: int, y_idx: int) -> CharacterBody2D:
+	var enemy_scene = load("res://scenes/entities/enemy_walker.tscn")
+	if enemy_scene:
+		var enemy = enemy_scene.instantiate()
+		enemy.position = Vector2(x_idx * 64 + 32, y_idx * 64 + 32)
+		return enemy
+	else:
+		_log("[Game] Error: Enemy walker scene not found.")
+		return null

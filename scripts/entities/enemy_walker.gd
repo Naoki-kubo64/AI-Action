@@ -26,7 +26,12 @@ func _physics_process(delta):
 		direction *= -1.0
 	
 	# Visual Facing
-	$Visuals.scale.x = -1 if direction > 0 else 1
+	if direction > 0:
+		$Visuals.scale.x = -1
+		$LedgeCheck.position.x = 22 # Check right
+	else:
+		$Visuals.scale.x = 1
+		$LedgeCheck.position.x = -22 # Check left
 
 func _on_stomp_area_entered(area: Area2D):
 	# Assuming Player has a "Hitbox" that enters this area from ABOVE
