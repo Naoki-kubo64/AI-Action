@@ -165,7 +165,31 @@ func _reset_game():
 	var level_path = LevelManager.get_current_level_path()
 	_log("[Game] Loading Level: " + level_path)
 	
-	# FORCE MANUAL CONSTRUCTION for World 1 levels
+	# 1. Try Loading from File
+	if FileAccess.file_exists(level_path):
+		var scene = load(level_path)
+		if scene:
+			var instance = scene.instantiate()
+			$LevelRoot.add_child(instance)
+			_log("[Game] Loaded File: " + level_path)
+			
+			start_pos = Vector2(96, 400) # Default
+			# Optional: Look for StartPoint
+			if instance.has_node("StartPoint"):
+				start_pos = instance.get_node("StartPoint").position
+			
+			player.position = start_pos
+			player.velocity = Vector2.ZERO
+			player.execute_action(command_db["STOP"])
+			
+			camera.position_smoothing_enabled = false
+			camera.align()
+			await get_tree().process_frame
+			camera.position_smoothing_enabled = true
+			_enter_preview_mode()
+			return
+
+	# 2. FORCE MANUAL CONSTRUCTION for World 1 levels (Legacy/Fallback)
 	if "Level_1-" in level_path:
 		var constructed = _construct_world_1_level(level_path, $LevelRoot)
 		if constructed:
