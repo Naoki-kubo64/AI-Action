@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768733712
+::res://::1768733870
 README.md::TextFile::-1::1768579772::0::1::::<><><>0<>0<><>::
 secret_api_key.txt::TextFile::-1::1768615488::0::1::::<><><>0<>0<><>::
 ::res://resources/::1768578154
@@ -19,11 +19,11 @@ Level_1-2.tscn::PackedScene::-1::1768623715::0::1::::<><><>0<>0<><>::uid://block
 Level_1-3.tscn::PackedScene::-1::1768623717::0::1::::<><><>0<>0<><>::uid://block001::::res://scenes/block.tscn
 Level_1-4.tscn::PackedScene::-1::1768623719::0::1::::<><><>0<>0<><>::uid://block001::::res://scenes/block.tscn<>uid://ci4wh4nyw3sa1::::res://scenes/entities/enemy_walker.tscn
 Level_1-5.tscn::PackedScene::-1::1768714648::0::1::::<><><>0<>0<><>::uid://dewdye17clfhq::::res://scenes/objects/moving_platform.tscn<>res://scenes/block.tscn
-Level_2-4.tscn::PackedScene::-1::1768733690::0::1::::<><><>0<>0<><>::res://scenes/objects/pushable_box.tscn<>res://scenes/block.tscn<>res://scenes/objects/spikes.tscn
+Level_2-4.tscn::PackedScene::-1::1768733803::0::1::::<><><>0<>0<><>::res://scenes/objects/pushable_box.tscn<>res://scenes/block.tscn<>res://scripts/objects/goal_area.gd<>res://scenes/objects/spikes.tscn
 ::res://scenes/objects/::1768733521
 moving_platform.tscn::PackedScene::7485658997968124682::1768713572::0::1::::<><><>0<>0<><>::res://scripts/objects/moving_platform.gd
 pushable_box.tscn::PackedScene::-1::1768733688::0::1::::<><><>0<>0<><>::res://scripts/objects/pushable_box.gd
-spikes.tscn::PackedScene::-1::1768733521::0::1::::<><><>0<>0<><>::
+spikes.tscn::PackedScene::-1::1768733801::0::1::::<><><>0<>0<><>::res://scripts/objects/spikes.gd
 ::res://scripts/::1768713566
 ::res://scripts/controllers/::1768578576
 game_controller.gd::GDScript::5878839804214660675::1768713595::0::1::::GameController<>Node<><>0<>0<><>::
@@ -34,9 +34,11 @@ enemy_walker.gd::GDScript::5815322980780027139::1768711899::0::1::::<>CharacterB
 game_manager.gd::GDScript::2455841155901181728::1768615509::0::1::::<>Node<><>0<>0<><>::
 level_manager.gd::GDScript::4495349671257295069::1768712845::0::1::::<>Node<><>0<>0<><>::
 memory_manager.gd::GDScript::5448443853875574185::1768620990::0::1::::<>Node<><>0<>0<><>::
-::res://scripts/objects/::1768724344
+::res://scripts/objects/::1768733859
+goal_area.gd::GDScript::1725627600300925508::1768733789::0::1::::<>Area2D<><>0<>0<><>::
 moving_platform.gd::GDScript::4579423162289150945::1768713566::0::1::::<>AnimatableBody2D<><>0<>0<><>::
 pushable_box.gd::GDScript::2139282495483972803::1768724182::0::1::::<>CharacterBody2D<><>0<>0<><>::
+spikes.gd::GDScript::7125680914431646975::1768733786::0::1::::<>Area2D<><>0<>0<><>::
 ::res://scripts/resources/::1768578278
 ai_character_profile.gd::GDScript::4098959938436471570::1768622228::0::1::::AICharacterProfile<>Resource<><>0<>0<><>::
 ::res://scripts/services/::1768578278

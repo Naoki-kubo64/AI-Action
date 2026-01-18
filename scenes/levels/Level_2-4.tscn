@@ -1,9 +1,9 @@
-[gd_scene load_steps=6 format=3 uid="uid://level2-4"]
+[gd_scene load_steps=6 format=3 uid="uid://level2-4_v2"]
 
-[ext_resource type="PackedScene" path="res://scenes/objects/pushable_box.tscn" id="1_box"]
-[ext_resource type="PackedScene" path="res://scenes/block.tscn" id="2_block"]
-[ext_resource type="Script" path="res://scripts/objects/goal_area.gd" id="3_goal_script"]
-[ext_resource type="PackedScene" path="res://scenes/objects/spikes.tscn" id="4_spikes"]
+[ext_resource type="PackedScene" path="res://scenes/objects/pushable_box.tscn" id="100_box"]
+[ext_resource type="PackedScene" path="res://scenes/block.tscn" id="200_block"]
+[ext_resource type="Script" path="res://scripts/objects/goal_area.gd" id="300_goal_script"]
+[ext_resource type="PackedScene" path="res://scenes/objects/spikes.tscn" id="400_spikes"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
 size = Vector2(64, 64)
@@ -17,51 +17,47 @@ position = Vector2(96, 400)
 # FLOOR
 # -----------------
 [node name="FloorStart" type="Node2D" parent="."]
-# X=0 to 320 (6 blocks)
-[node name="Block1" parent="FloorStart" instance=ExtResource("2_block")]
+[node name="Block1" parent="FloorStart" instance=ExtResource("200_block")]
 position = Vector2(0, 512)
-[node name="Block2" parent="FloorStart" instance=ExtResource("2_block")]
+[node name="Block2" parent="FloorStart" instance=ExtResource("200_block")]
 position = Vector2(64, 512)
-[node name="Block3" parent="FloorStart" instance=ExtResource("2_block")]
+[node name="Block3" parent="FloorStart" instance=ExtResource("200_block")]
 position = Vector2(128, 512)
-[node name="Block4" parent="FloorStart" instance=ExtResource("2_block")]
+[node name="Block4" parent="FloorStart" instance=ExtResource("200_block")]
 position = Vector2(192, 512)
-[node name="Block5" parent="FloorStart" instance=ExtResource("2_block")]
+[node name="Block5" parent="FloorStart" instance=ExtResource("200_block")]
 position = Vector2(256, 512)
 
 # -----------------
 # THE PIT (Gap)
 # -----------------
 [node name="PitFloor" type="Node2D" parent="."]
-# Floor for the box to land on
-[node name="BlockPit" parent="PitFloor" instance=ExtResource("2_block")]
+[node name="BlockPit" parent="PitFloor" instance=ExtResource("200_block")]
 position = Vector2(320, 576)
 
-# Spikes in the pit
-[node name="SpikesFloor" parent="PitFloor" instance=ExtResource("4_spikes")]
+[node name="SpikesFloor" parent="PitFloor" instance=ExtResource("400_spikes")]
 position = Vector2(352, 576) 
 
 # -----------------
 # CEILING NEEDLES
 # -----------------
 [node name="Ceiling" type="Node2D" parent="."]
-[node name="SpikesCeiling1" parent="Ceiling" instance=ExtResource("4_spikes")]
+[node name="SpikesCeiling1" parent="Ceiling" instance=ExtResource("400_spikes")]
 position = Vector2(200, 320)
 rotation = 3.14159
-[node name="SpikesCeiling2" parent="Ceiling" instance=ExtResource("4_spikes")]
+[node name="SpikesCeiling2" parent="Ceiling" instance=ExtResource("400_spikes")]
 position = Vector2(264, 320)
 rotation = 3.14159
-[node name="SpikesCeiling3" parent="Ceiling" instance=ExtResource("4_spikes")]
+[node name="SpikesCeiling3" parent="Ceiling" instance=ExtResource("400_spikes")]
 position = Vector2(328, 320)
 rotation = 3.14159
-# Extend over the pit
-[node name="SpikesCeiling4" parent="Ceiling" instance=ExtResource("4_spikes")]
+[node name="SpikesCeiling4" parent="Ceiling" instance=ExtResource("400_spikes")]
 position = Vector2(392, 320)
 rotation = 3.14159
-[node name="SpikesCeiling5" parent="Ceiling" instance=ExtResource("4_spikes")]
+[node name="SpikesCeiling5" parent="Ceiling" instance=ExtResource("400_spikes")]
 position = Vector2(456, 320)
 rotation = 3.14159
-[node name="SpikesCeiling6" parent="Ceiling" instance=ExtResource("4_spikes")]
+[node name="SpikesCeiling6" parent="Ceiling" instance=ExtResource("400_spikes")]
 position = Vector2(520, 320)
 rotation = 3.14159
 
@@ -69,18 +65,17 @@ rotation = 3.14159
 # AFTER PIT
 # -----------------
 [node name="FloorEnd" type="Node2D" parent="."]
-# Resume floor at X=384 (320 + 64 gap)
-[node name="BlockEnd1" parent="FloorEnd" instance=ExtResource("2_block")]
+[node name="BlockEnd1" parent="FloorEnd" instance=ExtResource("200_block")]
 position = Vector2(384, 512)
-[node name="BlockEnd2" parent="FloorEnd" instance=ExtResource("2_block")]
+[node name="BlockEnd2" parent="FloorEnd" instance=ExtResource("200_block")]
 position = Vector2(448, 512)
-[node name="BlockEnd3" parent="FloorEnd" instance=ExtResource("2_block")]
+[node name="BlockEnd3" parent="FloorEnd" instance=ExtResource("200_block")]
 position = Vector2(512, 512)
 
 # -----------------
 # THE BOX
 # -----------------
-[node name="PushableBox" parent="." instance=ExtResource("1_box")]
+[node name="PushableBox" parent="." instance=ExtResource("100_box")]
 position = Vector2(256, 400)
 
 # -----------------
@@ -88,7 +83,7 @@ position = Vector2(256, 400)
 # -----------------
 [node name="GoalArea" type="Area2D" parent="." groups=["goal"]]
 position = Vector2(500, 448)
-script = ExtResource("3_goal_script")
+script = ExtResource("300_goal_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoalArea"]
 shape = SubResource("RectangleShape2D_goal")
