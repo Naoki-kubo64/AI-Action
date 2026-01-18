@@ -1,6 +1,11 @@
 [gd_scene load_steps=2 format=3 uid="uid://block001"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_block"]
+size = Vector2(64, 64)
+
 [node name="Block" type="StaticBody2D"]
+collision_layer = 1
+collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 position = Vector2(32, 32)
@@ -17,6 +22,3 @@ offset_bottom = 64.0
 border_color = Color(0.2, 0.2, 0.3, 1)
 border_width = 2.0
 editor_only = false
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_block"]
-size = Vector2(64, 64)

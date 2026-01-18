@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768714306
+::res://::1768714524
 README.md::TextFile::-1::1768579772::0::1::::<><><>0<>0<><>::
 secret_api_key.txt::TextFile::-1::1768615488::0::1::::<><><>0<>0<><>::
 ::res://resources/::1768578154
@@ -38,7 +38,7 @@ ai_character_profile.gd::GDScript::4098959938436471570::1768622228::0::1::::AICh
 ::res://scripts/services/::1768578278
 llm_service.gd::GDScript::1019255584124159377::1768622264::0::1::::<>Node<><>0<>0<><>::
 ::res://scripts/ui/::1768579719
-character_select_ui.gd::GDScript::9044863746288316371::1768714259::0::1::::<>Control<><>0<>0<><>::
+character_select_ui.gd::GDScript::9044863746288316371::1768714398::0::1::::<>Control<><>0<>0<><>::
 prompt_input_ui.gd::GDScript::9018350516241425730::1768711555::0::1::::<>Control<><>0<>0<><>::
 retry_dialog.gd::GDScript::4016310819682956003::1768621373::0::1::::<>Control<><>0<>0<><>::
 ::res://scripts/utils/::1768578886

@@ -13,7 +13,7 @@ script/source = "extends Area2D
 [node name="Level_1-5" type="Node2D"]
 
 [node name="StartPoint" type="Node2D" parent="."]
-position = Vector2(96, 448)
+position = Vector2(96, 400)
 
 [node name="FloorStart" type="Node2D" parent="."]
 
