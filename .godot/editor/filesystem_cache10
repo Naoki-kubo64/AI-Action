@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768712320
+::res://::1768712405
 README.md::TextFile::-1::1768579772::0::1::::<><><>0<>0<><>::
 secret_api_key.txt::TextFile::-1::1768615488::0::1::::<><><>0<>0<><>::
 ::res://resources/::1768578154
@@ -12,7 +12,7 @@ block.tscn::PackedScene::70155390144::1768624737::0::1::::<><><>0<>0<><>::
 game.tscn::PackedScene::421869757626228735::1768711575::0::1::::<><><>0<>0<><>::res://scripts/controllers/game_controller.gd<>res://scripts/controllers/player_controller.gd<>res://scripts/ui/retry_dialog.gd<>res://scripts/utils/level_generator.gd<>res://scripts/ui/prompt_input_ui.gd
 main_menu.tscn::PackedScene::24787520941092490::1768622101::0::1::::<><><>0<>0<><>::res://scripts/ui/character_select_ui.gd<>res://resources/characters/type_o.tres<>res://resources/characters/type_g.tres<>res://resources/characters/type_c.tres
 ::res://scenes/entities/::1768621875
-enemy_walker.tscn::PackedScene::5395568890136973666::1768712262::0::1::::<><><>0<>0<><>::res://scripts/entities/enemy_walker.gd
+enemy_walker.tscn::PackedScene::5395568890136973666::1768712378::0::1::::<><><>0<>0<><>::res://scripts/entities/enemy_walker.gd
 ::res://scenes/levels/::1768622924
 Level_1-1.tscn::PackedScene::-1::1768623865::0::1::::<><><>0<>0<><>::res://scenes/block.tscn
 Level_1-2.tscn::PackedScene::-1::1768623715::0::1::::<><><>0<>0<><>::uid://block001::::res://scenes/block.tscn

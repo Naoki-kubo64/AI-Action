@@ -206,6 +206,11 @@ func _setup_minimap():
 func _enter_preview_mode():
 	current_state = State.PREVIEW
 	prompt_ui.visible = false
+	
+	# Force physics update to clear floor status (prevent instant skip if started on ground)
+	for i in range(5):
+		await get_tree().physics_frame
+
 	var tween = create_tween()
 	tween.tween_property(camera, "zoom", Vector2(0.5, 0.5), 1.0)
 	# Wait for 1s for camera zoom
