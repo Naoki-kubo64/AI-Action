@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://level2-4"]
 
-[ext_resource type="PackedScene" uid="uid://box12345" path="res://scenes/objects/pushable_box.tscn" id="1_box"]
+[ext_resource type="PackedScene" path="res://scenes/objects/pushable_box.tscn" id="1_box"]
 [ext_resource type="PackedScene" path="res://scenes/block.tscn" id="2_block"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
@@ -35,22 +35,6 @@ position = Vector2(320, 512)
 position = Vector2(200, 448)
 
 # The Pit (Gap from 384 to 512)
-# Width 2 blocks? (128px Gap) Box is 64x64.
-# If gap is too wide, box falls in but doesn't fill it.
-# We want the box to fall in and serve as a bridge?
-# Or just "Push box to jump over"?
-# Let's make a gap of 64px width and 64px depth?
-# The pit must be fillable.
-# Let's make a shallow pit.
-# Y=512 is normal floor.
-# Pit floor Y=576.
-# If box falls there, its top becomes Y=544.
-# That's too low?
-# No, Box size 64x64. Origin center.
-# If Box at Y=576, Top is 544. Collision Top 544.
-# Player at Y=512 walked off.
-# Player can walk on 544? It's a small step down.
-
 [node name="PitFloor" type="Node2D" parent="."]
 # A block inside the pit to catch the box
 [node name="BlockBottom" parent="PitFloor" instance=ExtResource("2_block")]
