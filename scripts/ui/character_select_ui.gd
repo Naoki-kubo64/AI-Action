@@ -48,12 +48,23 @@ func _on_reset_confirmed():
 func _on_debug_start_pressed():
 	if selected_index == -1: return
 	
-	var w = $CenterContainer/VBoxContainer/DebugPanel/HBox/WorldSpin.value
-	var s = $CenterContainer/VBoxContainer/DebugPanel/HBox/StageSpin.value
+	var w_spin = $CenterContainer/VBoxContainer/DebugPanel/HBox/WorldSpin
+	var s_spin = $CenterContainer/VBoxContainer/DebugPanel/HBox/StageSpin
+	
+	# Workaround: SpinBox value might not update until enter/focus loss
+	# Retrieve text directly to be sure
+	var w_val = int(w_spin.get_line_edit().text)
+	var s_val = int(s_spin.get_line_edit().text)
+	
+	# Fallback if text parsing fails (e.g. empty)
+	if w_val == 0: w_val = int(w_spin.value)
+	if s_val == 0: s_val = int(s_spin.value)
+	
+	print("Debug Start: W-", w_val, " S-", s_val)
 	
 	# Set Level
-	LevelManager.current_world = int(w)
-	LevelManager.current_stage = int(s)
+	LevelManager.current_world = w_val
+	LevelManager.current_stage = s_val
 	
 	# Start
 	GameManager.start_game(characters[selected_index], false)
