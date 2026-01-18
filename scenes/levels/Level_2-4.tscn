@@ -34,7 +34,7 @@ position = Vector2(320, 512)
 
 # The Box (Inline)
 [node name="PushableBox" type="RigidBody2D" parent="."]
-position = Vector2(200, 448)
+position = Vector2(200, 480)
 collision_layer = 1
 collision_mask = 1
 mass = 5.0
