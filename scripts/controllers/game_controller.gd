@@ -206,7 +206,18 @@ func _enter_preview_mode():
 	prompt_ui.visible = false
 	var tween = create_tween()
 	tween.tween_property(camera, "zoom", Vector2(0.5, 0.5), 1.0)
-	await get_tree().create_timer(2.0).timeout
+	# Wait for 1s for camera zoom
+	await get_tree().create_timer(1.0).timeout
+	
+	# Wait for player to land
+	var timeout = 5.0
+	while not player.is_on_floor() and timeout > 0:
+		await get_tree().physics_frame
+		timeout -= get_process_delta_time()
+	
+	# Extra buffer
+	await get_tree().create_timer(0.5).timeout
+
 	_enter_input_mode()
 
 func _enter_input_mode():
@@ -571,6 +582,8 @@ func _construct_manual_level_1_3(parent: Node2D):
 	parent.add_child(_create_goal(9, 7))
 	_log("[Game] Level 1-3 Constructed!")
 
+const ENEMY_SCENE = preload("res://scenes/entities/enemy_walker.tscn")
+
 # --- LEVEL 1-4: ENEMIES ---
 func _construct_manual_level_1_4(parent: Node2D):
 	var floor_node = Node2D.new()
@@ -591,11 +604,10 @@ func _construct_manual_level_1_4(parent: Node2D):
 	_log("[Game] Level 1-4 Constructed!")
 
 func _create_enemy(x_idx: int, y_idx: int) -> CharacterBody2D:
-	var enemy_scene = load("res://scenes/entities/enemy_walker.tscn")
-	if enemy_scene:
-		var enemy = enemy_scene.instantiate()
+	if ENEMY_SCENE:
+		var enemy = ENEMY_SCENE.instantiate()
 		enemy.position = Vector2(x_idx * 64 + 32, y_idx * 64 + 32)
 		return enemy
 	else:
-		_log("[Game] Error: Enemy walker scene not found.")
+		_log("[Game] Error: Enemy walker scene not loaded.")
 		return null
