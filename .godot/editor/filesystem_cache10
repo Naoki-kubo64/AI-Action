@@ -1,5 +1,5 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768733081
+::res://::1768733589
 README.md::TextFile::-1::1768579772::0::1::::<><><>0<>0<><>::
 secret_api_key.txt::TextFile::-1::1768615488::0::1::::<><><>0<>0<><>::
 ::res://resources/::1768578154
@@ -19,10 +19,11 @@ Level_1-2.tscn::PackedScene::-1::1768623715::0::1::::<><><>0<>0<><>::uid://block
 Level_1-3.tscn::PackedScene::-1::1768623717::0::1::::<><><>0<>0<><>::uid://block001::::res://scenes/block.tscn
 Level_1-4.tscn::PackedScene::-1::1768623719::0::1::::<><><>0<>0<><>::uid://block001::::res://scenes/block.tscn<>uid://ci4wh4nyw3sa1::::res://scenes/entities/enemy_walker.tscn
 Level_1-5.tscn::PackedScene::-1::1768714648::0::1::::<><><>0<>0<><>::uid://dewdye17clfhq::::res://scenes/objects/moving_platform.tscn<>res://scenes/block.tscn
-Level_2-4.tscn::PackedScene::6979451067563616757::1768724409::0::1::::<><><>0<>0<><>::uid://block001::::res://scenes/block.tscn<>uid://5qjw1xqjqjrn::::res://scripts/objects/pushable_box.gd
-::res://scenes/objects/::1768715319
+Level_2-4.tscn::PackedScene::-1::1768733523::0::1::::<><><>0<>0<><>::res://scenes/block.tscn<>res://scripts/objects/pushable_box.gd<>res://scenes/objects/spikes.tscn
+::res://scenes/objects/::1768733521
 moving_platform.tscn::PackedScene::7485658997968124682::1768713572::0::1::::<><><>0<>0<><>::res://scripts/objects/moving_platform.gd
 pushable_box.tscn::PackedScene::-1::1768715356::0::1::::<><><>0<>0<><>::
+spikes.tscn::PackedScene::-1::1768733521::0::1::::<><><>0<>0<><>::
 ::res://scripts/::1768713566
 ::res://scripts/controllers/::1768578576
 game_controller.gd::GDScript::5878839804214660675::1768713595::0::1::::GameController<>Node<><>0<>0<><>::

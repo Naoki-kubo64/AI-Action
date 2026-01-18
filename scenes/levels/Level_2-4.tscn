@@ -1,13 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://level2-4"]
 
+[ext_resource type="PackedScene" path="res://scenes/objects/pushable_box.tscn" id="1_box"]
 [ext_resource type="PackedScene" path="res://scenes/block.tscn" id="2_block"]
-[ext_resource type="Script" path="res://scripts/objects/pushable_box.gd" id="3_box_script"]
 [ext_resource type="PackedScene" path="res://scenes/objects/spikes.tscn" id="4_spikes"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
-size = Vector2(64, 64)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_box"]
 size = Vector2(64, 64)
 
 [sub_resource type="GDScript" id="GDScript_goal"]
@@ -38,55 +35,18 @@ position = Vector2(256, 512)
 # -----------------
 # THE PIT (Gap)
 # -----------------
-# Gap at X=320..448 (Width 128 = 2 blocks wide?)
-# No, box is 64. If gap is 128, box falls in and doesn't bridge.
-# Box needs to bridge "something".
-# If the gap is 64 wide, box fills it.
-# The sketch shows a gap with needles.
-# Can the box land ON the needles?
-# Yes. Spikes are Area2D. Box is CharacterBody2D. They don't collide physically unless Spikes have a Body.
-# My Spikes are Area2D. Box will fall THROUGH them if there is no floor.
-# So I need a floor at the bottom of the pit for the box to land on.
-# AND the spikes should be there.
-
 [node name="PitFloor" type="Node2D" parent="."]
-# Floor for the box to land on (lowered)
-# Floor is at Y=512.
-# Pit bottom at Y=576 (1 block down).
+# Floor for the box to land on
 [node name="BlockPit" parent="PitFloor" instance=ExtResource("2_block")]
 position = Vector2(320, 576)
 
 # Spikes in the pit
 [node name="SpikesFloor" parent="PitFloor" instance=ExtResource("4_spikes")]
 position = Vector2(352, 576) 
-# Spikes origin is center? No, my polygon was -32..32.
-# Block origin is Top-Left (from our previous discoveries).
-# Wait, Block.tscn has CollisionShape at (32, 32).
-# Block position (320, 576) -> Center (352, 608). Top 576.
-# Spikes at (352, 576). Y is Top of block.
-# My Spikes visual is -16..32 Y range.
-# Center Y=0 is... where?
-# If I place Spikes at 576, the spikes point UP from 576?
-# My polygon: (-16, -16) to (0, 32) ??
-# Let's check Spikes script again.
-# (-32, 32) bottom left. (-16, -16) tip. (0, 32) bottom center.
-# So Y ranges from -16 (top) to 32 (bottom).
-# If I place it at Y=576 (Surface of pit block), 0 is surface.
-# Tip is at -16 (Above surface). Bottom at 32 (Inside block).
-# Sounds correct.
 
 # -----------------
 # CEILING NEEDLES
 # -----------------
-# Ceiling to prevent jumping.
-# Player stands at Y=448 (on floor 512). Head at 400.
-# Jump goes up to... 300?
-# Ceiling should be low.
-# Say at Y=320?
-# Ceiling Spikes need to point DOWN.
-# My Spikes scene points UP.
-# I need to rotate them 180 deg.
-
 [node name="Ceiling" type="Node2D" parent="."]
 [node name="SpikesCeiling1" parent="Ceiling" instance=ExtResource("4_spikes")]
 position = Vector2(200, 320)
@@ -123,35 +83,9 @@ position = Vector2(512, 512)
 # -----------------
 # THE BOX
 # -----------------
-# Start before the gap
-[node name="PushableBox" type="CharacterBody2D" parent="."]
-position = Vector2(256, 400) 
-# Y=400 air drop.
-collision_layer = 1
-collision_mask = 1
-script = ExtResource("3_box_script")
-z_index = 5
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="PushableBox"]
-shape = SubResource("RectangleShape2D_box")
-
-[node name="ColorRect" type="ColorRect" parent="PushableBox"]
-offset_left = -32.0
-offset_top = -32.0
-offset_right = 32.0
-offset_bottom = 32.0
-color = Color(0.8, 0.5, 0.2, 1)
-
-[node name="ReferenceRect" type="ReferenceRect" parent="PushableBox/ColorRect"]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-border_color = Color(0.3, 0.15, 0.05, 1.0)
-border_width = 4.0
-editor_only = false
+# Use the scene instance instead of inline code
+[node name="PushableBox" parent="." instance=ExtResource("1_box")]
+position = Vector2(256, 400)
 
 # -----------------
 # GOAL
