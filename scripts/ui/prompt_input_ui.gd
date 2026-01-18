@@ -1,6 +1,7 @@
 extends Control
 
 signal game_start_requested(prompt: String, api_key: String)
+signal debug_win_requested
 
 @onready var prompt_edit = $Panel/VBoxContainer/PromptEdit
 @onready var api_key_edit = $Panel/VBoxContainer/ApiKeyEdit
@@ -24,3 +25,6 @@ func _on_start_button_pressed():
 	
 	# visible = false # Controlled by GameController
 	game_start_requested.emit(prompt, api_key)
+
+func _on_debug_win_pressed():
+	debug_win_requested.emit()

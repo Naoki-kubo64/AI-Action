@@ -126,6 +126,11 @@ secret = true
 layout_mode = 2
 text = "Start Mission"
 
+[node name="DebugWinButton" type="Button" parent="CanvasLayer/PromptInputUI/Panel/VBoxContainer"]
+layout_mode = 2
+text = "Debug: INSTANT WIN >>"
+modulate = Color(0.5, 1, 0.5, 1)
+
 [node name="RetryDialog" type="Control" parent="CanvasLayer"]
 process_mode = 3
 visible = false
@@ -194,6 +199,7 @@ editable = false
 wrap_mode = 1
 
 [connection signal="pressed" from="CanvasLayer/PromptInputUI/Panel/VBoxContainer/StartButton" to="CanvasLayer/PromptInputUI" method="_on_start_button_pressed"]
+[connection signal="pressed" from="CanvasLayer/PromptInputUI/Panel/VBoxContainer/DebugWinButton" to="CanvasLayer/PromptInputUI" method="_on_debug_win_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryStandard" to="CanvasLayer/RetryDialog" method="_on_retry_standard_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/RetryPro" to="CanvasLayer/RetryDialog" method="_on_retry_pro_pressed"]
 [connection signal="pressed" from="CanvasLayer/RetryDialog/Panel/VBoxContainer/MenuButton" to="CanvasLayer/RetryDialog" method="_on_menu_pressed"]

@@ -90,6 +90,8 @@ func _ready():
 		player.modulate = GameManager.current_character.base_color
 	
 	prompt_ui.game_start_requested.connect(_on_prompt_submitted)
+	if not prompt_ui.debug_win_requested.is_connected(_on_player_hit_goal):
+		prompt_ui.debug_win_requested.connect(_on_player_hit_goal)
 	LLMService.response_received.connect(_on_llm_response)
 	retry_dialog.retry_requested.connect(_on_retry_requested)
 	
