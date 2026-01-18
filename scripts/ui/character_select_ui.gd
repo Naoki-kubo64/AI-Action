@@ -52,13 +52,15 @@ func _on_debug_start_pressed():
 	var s_spin = $CenterContainer/VBoxContainer/DebugPanel/HBox/StageSpin
 	
 	# Workaround: SpinBox value might not update until enter/focus loss
-	# Retrieve text directly to be sure
-	var w_val = int(w_spin.get_line_edit().text)
-	var s_val = int(s_spin.get_line_edit().text)
+	# Force validation by releasing focus if active
+	if w_spin.get_line_edit().has_focus():
+		w_spin.get_line_edit().release_focus()
+	if s_spin.get_line_edit().has_focus():
+		s_spin.get_line_edit().release_focus()
 	
-	# Fallback if text parsing fails (e.g. empty)
-	if w_val == 0: w_val = int(w_spin.value)
-	if s_val == 0: s_val = int(s_spin.value)
+	# Now value should be correct and clamped
+	var w_val = int(w_spin.value)
+	var s_val = int(s_spin.value)
 	
 	print("Debug Start: W-", w_val, " S-", s_val)
 	
