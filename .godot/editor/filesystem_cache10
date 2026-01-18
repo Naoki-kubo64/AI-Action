@@ -1,7 +1,13 @@
 63f7b34db8d8cdea90c76aacccf841ec
-::res://::1768734173
+::res://::1768734396
 README.md::TextFile::-1::1768579772::0::1::::<><><>0<>0<><>::
 secret_api_key.txt::TextFile::-1::1768615488::0::1::::<><><>0<>0<><>::
+::res://assets/::1768734396
+::res://assets/art/::1768734396
+sprites_characters.png::CompressedTexture2D::6826752069306973381::1768734283::1768734439::0::::<><><>0<>0<>64a77dc8ecbe09ca5709c7adcb0cf73e<>::
+sprites_gimmicks.png::CompressedTexture2D::4762865388688727543::1768734303::1768734439::0::::<><><>0<>0<>8b60bdf0fd183fc40cb110116df2a004<>::
+tileset_skyruins.png::CompressedTexture2D::6723854884559284504::1768734266::1768734439::0::::<><><>0<>0<>2aa4c8b8897f7f86def7b716bbdbfbe8<>::
+ui_theme.png::CompressedTexture2D::4913659508408005790::1768734323::1768734439::0::::<><><>0<>0<>e7886af9d8d05e9db8c170c4216c9e25<>::
 ::res://resources/::1768578154
 ::res://resources/characters/::1768578160
 type_c.tres::Resource/AICharacterProfile::-1::1768622261::0::1::::<><><>0<>0<><>::res://scripts/resources/ai_character_profile.gd
@@ -24,7 +30,7 @@ Level_2-5.tscn::PackedScene::-1::1768734132::0::1::::<><><>0<>0<><>::res://scene
 ::res://scenes/objects/::1768734102
 moving_platform.tscn::PackedScene::7485658997968124682::1768713572::0::1::::<><><>0<>0<><>::res://scripts/objects/moving_platform.gd
 pushable_box.tscn::PackedScene::-1::1768733688::0::1::::<><><>0<>0<><>::res://scripts/objects/pushable_box.gd
-saw_blade.tscn::PackedScene::-1::1768734102::0::1::::<><><>0<>0<><>::res://scripts/objects/saw_blade.gd
+saw_blade.tscn::PackedScene::-1::1768734407::0::1::::<><><>0<>0<><>::res://scripts/objects/saw_blade.gd
 spikes.tscn::PackedScene::-1::1768733801::0::1::::<><><>0<>0<><>::res://scripts/objects/spikes.gd
 ::res://scripts/::1768713566
 ::res://scripts/controllers/::1768578576
