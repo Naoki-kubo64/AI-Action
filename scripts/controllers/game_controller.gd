@@ -4,7 +4,9 @@ class_name GameController
 @onready var player: PlayerController = $Player
 @onready var retry_dialog = $CanvasLayer/RetryDialog
 @onready var prompt_ui = $CanvasLayer/PromptInputUI
-@onready var camera = $Player/Camera2D
+@onready var camera = $Player/Camera2D as Camera2D
+
+const ENEMY_SCENE = preload("res://scenes/entities/enemy_walker.tscn")
 
 enum State {PREVIEW, INPUT, ACTION, GAMEOVER}
 var current_state = State.PREVIEW
@@ -581,8 +583,6 @@ func _construct_manual_level_1_3(parent: Node2D):
 	
 	parent.add_child(_create_goal(9, 7))
 	_log("[Game] Level 1-3 Constructed!")
-
-const ENEMY_SCENE = preload("res://scenes/entities/enemy_walker.tscn")
 
 # --- LEVEL 1-4: ENEMIES ---
 func _construct_manual_level_1_4(parent: Node2D):
