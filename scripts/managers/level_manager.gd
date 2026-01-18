@@ -23,15 +23,13 @@ func load_level(world: int, stage: int):
 	load_current_level()
 
 func load_current_level():
-	# In our new architecture, LevelManager just holds the state (current_world/stage).
-	# The actual loading happens when the Game Scene resets.
-	# So here we should strictly change to the Game Scene if we aren't already there,
-	# OR if we are there, trigger a reset.
+	# In our new architecture, we want to mimic the "Start Game" flow exactly.
+	# Direct calls to _reset_game() might leave physics state dirty.
+	# So we force a Scene Reload if we are already in-game.
 	var current_scene = get_tree().current_scene
 	if current_scene and current_scene.name == "GameScene":
-		# We are already in game, just reset it to load new level
-		if current_scene.has_method("_reset_game"):
-			current_scene._reset_game()
+		# Reload to ensure fresh _ready() and physics state
+		get_tree().reload_current_scene()
 	else:
 		# We are in menu, go to game
 		get_tree().change_scene_to_file("res://scenes/game.tscn")
