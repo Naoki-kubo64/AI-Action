@@ -1,0 +1,139 @@
+[gd_scene load_steps=6 format=3 uid="uid://level2-5"]
+
+[ext_resource type="PackedScene" path="res://scenes/block.tscn" id="1_block"]
+[ext_resource type="PackedScene" path="res://scenes/objects/saw_blade.tscn" id="2_saw"]
+[ext_resource type="PackedScene" path="res://scenes/objects/spikes.tscn" id="3_spikes"]
+[ext_resource type="Script" path="res://scripts/objects/goal_area.gd" id="4_goal_script"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
+size = Vector2(64, 64)
+
+[node name="Level_2-5" type="Node2D"]
+
+[node name="StartPoint" type="Node2D" parent="."]
+position = Vector2(96, 400)
+
+# -----------------
+# STARTING ISLAND
+# -----------------
+[node name="IslandStart" type="Node2D" parent="."]
+[node name="Block1" parent="IslandStart" instance=ExtResource("1_block")]
+position = Vector2(0, 512)
+[node name="Block2" parent="IslandStart" instance=ExtResource("1_block")]
+position = Vector2(64, 512)
+[node name="Block3" parent="IslandStart" instance=ExtResource("1_block")]
+position = Vector2(128, 512)
+
+# -----------------
+# FLOATING ISLANDS
+# -----------------
+# Gap 1: Simple jump
+[node name="Island2" type="Node2D" parent="."]
+[node name="Block_2_1" parent="Island2" instance=ExtResource("1_block")]
+position = Vector2(256, 448) # Higher
+[node name="Block_2_2" parent="Island2" instance=ExtResource("1_block")]
+position = Vector2(320, 448)
+
+# Gap 2: Needs timing vs Saw
+[node name="Island3" type="Node2D" parent="."]
+[node name="Block_3_1" parent="Island3" instance=ExtResource("1_block")]
+position = Vector2(480, 512) # Lower
+[node name="Block_3_2" parent="Island3" instance=ExtResource("1_block")]
+position = Vector2(544, 512)
+
+# Gap 3: Long jump to Goal
+[node name="IslandEnd" type="Node2D" parent="."]
+[node name="Block_End_1" parent="IslandEnd" instance=ExtResource("1_block")]
+position = Vector2(704, 448)
+[node name="Block_End_2" parent="IslandEnd" instance=ExtResource("1_block")]
+position = Vector2(768, 448)
+[node name="Block_End_3" parent="IslandEnd" instance=ExtResource("1_block")]
+position = Vector2(832, 448)
+
+# -----------------
+# HAZARDS
+# -----------------
+
+# Floor Spikes (Catch fall)
+[node name="BottomSpikes" type="Node2D" parent="."]
+position = Vector2(0, 700) # Deep below
+# If player falls, they die.
+# Cover entire width
+[node name="Spike1" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(96, 0)
+[node name="Spike2" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(224, 0)
+[node name="Spike3" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(352, 0)
+[node name="Spike4" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(480, 0)
+[node name="Spike5" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(608, 0)
+[node name="Spike6" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(736, 0)
+[node name="Spike7" parent="BottomSpikes" instance=ExtResource("3_spikes")]
+position = Vector2(864, 0)
+
+# Saw Blades
+[node name="Saws" type="Node2D" parent="."]
+# Saw between start and Island 2 (Low threat)
+[node name="Saw1" parent="Saws" instance=ExtResource("2_saw")]
+position = Vector2(192, 550) 
+
+# Saw between Island 2 and 3 (Timing threat)
+[node name="Saw2" parent="Saws" instance=ExtResource("2_saw")]
+position = Vector2(400, 480) 
+# Player jumps from 320(top 448) to 480(top 512).
+# Saw at 400, 480.
+# Player path: parabola.
+# Saw radius 30.
+# Should be okay if careful.
+
+# Saw guarding Island 3
+[node name="Saw3" parent="Saws" instance=ExtResource("2_saw")]
+position = Vector2(512, 400) # Overhead saw!
+# Player stands on 480-544 (top 512).
+# Saw at X=512, Y=400.
+# Player head Y=512-48=464.
+# Saw bottom = 400+30=430.
+# Safe height diff = 34px. Safe to walk under?
+# No, 464 > 430. Player head hits saw bottom.
+# Player MUST duck or dash? No duck command yet.
+# Wait, Player top is LOWER Y than floor.
+# Floor Y=512. Player Head Y=464.
+# Saw Y=400. Saw Bottom Y=430.
+# 464 > 430? True. Y increases downwards.
+# So Player (464) is BELOW Saw (430).
+# Gap is 34px.
+# Player can walk under it safely.
+# But Jump hits it.
+
+# Saw between Island 3 and End
+[node name="Saw4" parent="Saws" instance=ExtResource("2_saw")]
+position = Vector2(624, 600) # Deep saw, visual only?
+[node name="Saw5" parent="Saws" instance=ExtResource("2_saw")]
+position = Vector2(624, 450) # The real blocker
+# Player jumps from 544(top 512) to 704(top 448).
+# X distance 160.
+# Saw at 624 (midpoint). Y=450.
+# Jump arc peak?
+# If jumping UP to 448, player needs height.
+# Saw at 450 effectively blocks straight path.
+# Needs high jump or perfect timing?
+
+# -----------------
+# GOAL
+# -----------------
+[node name="GoalArea" type="Area2D" parent="." groups=["goal"]]
+position = Vector2(800, 384)
+script = ExtResource("4_goal_script")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="GoalArea"]
+shape = SubResource("RectangleShape2D_goal")
+
+[node name="ColorRect" type="ColorRect" parent="GoalArea"]
+offset_left = -32.0
+offset_top = -32.0
+offset_right = 32.0
+offset_bottom = 32.0
+color = Color(1, 0.84, 0, 0.5)
