@@ -2,6 +2,15 @@
 
 [ext_resource type="Script" path="res://scripts/entities/enemy_walker.gd" id="1_script"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(40, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
+size = Vector2(36, 8)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_damage"]
+size = Vector2(44, 20)
+
 [node name="EnemyWalker" type="CharacterBody2D" groups=["hazard"]]
 collision_layer = 4
 collision_mask = 3
@@ -52,13 +61,6 @@ shape = SubResource("RectangleShape2D_damage")
 position = Vector2(-22, 0)
 target_position = Vector2(0, 30)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(40, 40)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
-size = Vector2(36, 8)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_damage"]
-size = Vector2(44, 20)
 
 [connection signal="area_entered" from="StompArea" to="." method="_on_stomp_area_entered"]
