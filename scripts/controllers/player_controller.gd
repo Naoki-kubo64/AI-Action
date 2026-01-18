@@ -79,10 +79,17 @@ func _physics_process(delta):
 	# Interaction with RigidBodies (Pushing)
 	for i in get_slide_collision_count():
 		var c = get_slide_collision(i)
-		if c.get_collider() is RigidBody2D:
-			# Apply impulse proportional to move direction or generic push
-			# Simple push:
-			c.get_collider().apply_central_impulse(-c.get_normal() * 100.0)
+		var collider = c.get_collider()
+		
+		# RigidBody Push
+		if collider is RigidBody2D:
+			collider.apply_central_impulse(-c.get_normal() * 100.0)
+		
+		# CharacterBody Push (Custom)
+		elif collider.has_method("push"):
+			# Push in the direction we are moving
+			if abs(c.get_normal().x) > 0.5: # Only side collisions
+				collider.push(Vector2(-sign(c.get_normal().x) * 100.0, 0))
 	
 	# Visuals Facing
 	if velocity.x != 0 and active_special != "LOOK_AROUND":
