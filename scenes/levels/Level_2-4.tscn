@@ -2,14 +2,11 @@
 
 [ext_resource type="PackedScene" path="res://scenes/objects/pushable_box.tscn" id="1_box"]
 [ext_resource type="PackedScene" path="res://scenes/block.tscn" id="2_block"]
+[ext_resource type="Script" path="res://scripts/objects/goal_area.gd" id="3_goal_script"]
 [ext_resource type="PackedScene" path="res://scenes/objects/spikes.tscn" id="4_spikes"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_goal"]
 size = Vector2(64, 64)
-
-[sub_resource type="GDScript" id="GDScript_goal"]
-script/source = "extends Area2D
-"
 
 [node name="Level_2-4" type="Node2D"]
 
@@ -83,7 +80,6 @@ position = Vector2(512, 512)
 # -----------------
 # THE BOX
 # -----------------
-# Use the scene instance instead of inline code
 [node name="PushableBox" parent="." instance=ExtResource("1_box")]
 position = Vector2(256, 400)
 
@@ -92,7 +88,7 @@ position = Vector2(256, 400)
 # -----------------
 [node name="GoalArea" type="Area2D" parent="." groups=["goal"]]
 position = Vector2(500, 448)
-script = SubResource("GDScript_goal")
+script = ExtResource("3_goal_script")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="GoalArea"]
 shape = SubResource("RectangleShape2D_goal")
